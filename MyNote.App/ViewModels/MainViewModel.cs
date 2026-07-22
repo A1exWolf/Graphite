@@ -13,7 +13,7 @@ namespace MyNote.App.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-
+    // TODO: Если сразу не задан путь и тд то после выбора ничего не парситься
     public MainViewModel()
     {
         #region DEBUG
@@ -52,7 +52,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     public void OpenTab(TreeFolderModel folder)
     {
-        var searchTab = _openNotes.FirstOrDefault(x => x.Path == folder.Path);
+        var searchTab = OpenNotes.FirstOrDefault(x => x.Path == folder.Path);
 
         if (searchTab != null)
         {
@@ -60,13 +60,13 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
         
-        _openNotes.Add(new Note()
+        OpenNotes.Add(new Note()
         {
             Id = Random.Shared.Next(1, 9999),
             Title = folder.Name,
             Content = File.ReadAllText(folder.Path),
             Path = folder.Path,
-            OpenIndex = _openNotes.Count
+            OpenIndex = OpenNotes.Count
         });
     }
 
@@ -99,16 +99,16 @@ public partial class MainViewModel : ViewModelBase
     
     public void CloseTab(int bTag)
     {
-        var tab = _openNotes.FirstOrDefault(x => bTag == x.Id);
+        var tab = OpenNotes.FirstOrDefault(x => bTag == x.Id);
 
-        for (int i = tab.OpenIndex ?? 0; i < _openNotes.Count; i++)
+        for (int i = tab.OpenIndex ?? 0; i < OpenNotes.Count; i++)
         {
-            _openNotes[i].OpenIndex--;
+            OpenNotes[i].OpenIndex--;
         }
         
         if (tab != null)
         {
-            _openNotes.Remove(tab);
+            OpenNotes.Remove(tab);
         }
     }
 }
