@@ -9,11 +9,20 @@ namespace MyNote.Tests.Notes
         [InlineData("", false)]
         [InlineData("   ", false)]
         [InlineData("My Note", true)]
+        [InlineData("My note.md", false)]
         public void IsValidName_ReturnsExpectedResult(string? name, bool expected)
         {
             var result = NoteRules.IsValidName(name);
 
             Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("My note.md")]
+        [InlineData("My notemd")]
+        public void IsValidName_ReturnsArgumentIfError(string name)
+        {
+            NoteRules.IsValidNameExeption(name);
         }
 
         [Fact]
