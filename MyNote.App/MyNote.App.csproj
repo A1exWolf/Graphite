@@ -22,4 +22,9 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyNote.Domain\MyNote.Domain.csproj" />
+    <ProjectReference Include="..\MyNote.Infrastructure\MyNote.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>
