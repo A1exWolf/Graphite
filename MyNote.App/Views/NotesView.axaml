@@ -4,13 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="using:MyNote.App.ViewModels"
+             xmlns:views="using:MyNote.App.Views"
              x:DataType="vm:MainViewModel"
              x:Class="MyNote.App.Views.NotesView">
   <Grid>
 
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="25"/>
-      <ColumnDefinition Width="150"/>
+      <ColumnDefinition Width="35"/>
+      <ColumnDefinition Width="150" MaxWidth="500"/>
       <ColumnDefinition Width="5"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
@@ -18,14 +19,10 @@
     <Grid Grid.Column="0" Background="Aqua">
     </Grid>
 
-    <Grid Grid.Column="1" Background="Blue">
-      <TextBlock Text="TEST1"/>
-    </Grid>
+    <views:TreeFolderView Grid.Column="1"/>
 
-    <GridSplitter Grid.Column="2" SizeChanged="GridSplitter_SizeChanged"/>
+    <GridSplitter Grid.Column="2" Background="Gray" SizeChanged="GridSplitter_SizeChanged"/>
 
-    <Grid Grid.Column="3" Background="Red">
-      <TextBlock Text="TEST2"/>
-    </Grid>
+    <views:TabControlView Grid.Column="3"/>
   </Grid>
 </UserControl>

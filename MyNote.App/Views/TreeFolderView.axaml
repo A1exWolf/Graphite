@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="150" d:DesignHeight="450"
+             x:Class="MyNote.App.Views.TreeFolderView"
+             xmlns:vm="using:MyNote.App.ViewModels"
+             xmlns:models="using:MyNote.App.Models"
+             x:DataType="vm:MainViewModel">
+  <Grid>
+      <StackPanel Margin="5,10">
+          <TextBox PlaceholderText="Поиск..."/>
+          <TreeView ItemsSource="{Binding Tree}">
+              <TreeView.ItemTemplate>
+                  <TreeDataTemplate x:DataType="models:TreeFolderModel" ItemsSource="{Binding Children}">
+                      <TextBlock Text="{Binding Name}" />
+                  </TreeDataTemplate>
+              </TreeView.ItemTemplate>
+          </TreeView>
+      </StackPanel>
+  </Grid>
+</UserControl>
