@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -27,7 +28,8 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    [ObservableProperty] private ObservableCollection<TreeFolderModel> tree = new();
+    [ObservableProperty] 
+    private ObservableCollection<TreeFolderModel> tree = new();
 
     [ObservableProperty]
     public ObservableCollection<Note> _openNotes = new()
@@ -88,6 +90,16 @@ public partial class MainViewModel : ViewModelBase
             }
             
             tree.Add(d);
+        }
+    }
+
+    public void CloseTab(int bTag)
+    {
+        var tab = _openNotes.FirstOrDefault(x => bTag == x.Id);
+
+        if (tab != null)
+        {
+            _openNotes.Remove(tab);
         }
     }
 }

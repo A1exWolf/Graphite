@@ -17,7 +17,7 @@
                             MaxWidth="180"
                             Text="{Binding Title}"
                             TextTrimming="CharacterEllipsis" />
-                        <Button Content="X"/>
+                        <Button Content="X" Tag="{Binding Id}" Click="Button_OnClick"/>
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
