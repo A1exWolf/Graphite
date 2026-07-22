@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,6 +17,12 @@ public partial class MainViewModel : ViewModelBase
         IsFolderSelected = true;
         SelectedFolderPath = @"C:\Users\Alex\Documents\TestValue";
         #endregion
+
+        if (!string.IsNullOrWhiteSpace(SelectedFolderPath))
+        {
+            tree = new();
+            ReadDirectory(SelectedFolderPath);
+        }
     }
 
     [ObservableProperty]
@@ -48,5 +56,30 @@ public partial class MainViewModel : ViewModelBase
     {
         SelectedFolderPath = folder.TryGetLocalPath() ?? folder.Path.ToString();
         IsFolderSelected = true;
+    }
+
+    private void ReadDirectory(string path)
+    {
+        var pathFolders = Directory.GetDirectories(path);
+
+        foreach (var pathFolder in pathFolders)
+        {
+            var folderName = Path.GetFileName(pathFolder);
+
+            var d = new TreeFolderModel()
+            {
+                Name = folderName
+            };
+
+            foreach (var files in Directory.GetFiles(pathFolder))
+            {
+                d.Children.Add(new TreeFolderModel()
+                {
+                    Name = Path.GetFileName(files)
+                });
+            }
+            
+            tree.Add(d);
+        }
     }
 }
