@@ -10,4 +10,9 @@ public partial class NotesView : UserControl
     {
         InitializeComponent();
     }
+
+    private void GridSplitter_SizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        var i = (GridSplitter)sender;
+    }
 }

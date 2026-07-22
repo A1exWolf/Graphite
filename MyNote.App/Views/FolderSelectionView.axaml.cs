@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using MyNote.App.ViewModels;
 
 namespace MyNote.App.Views;
@@ -18,7 +20,7 @@ public partial class FolderSelectionView : UserControl
 
         if (topLevel == null) return;
 
-        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions()
+        IReadOnlyList<IStorageFolder> folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new Avalonia.Platform.Storage.FolderPickerOpenOptions()
         {
             Title = "Select folder with note",
             AllowMultiple = false

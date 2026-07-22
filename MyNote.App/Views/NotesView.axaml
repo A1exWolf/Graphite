@@ -7,6 +7,25 @@
              x:DataType="vm:MainViewModel"
              x:Class="MyNote.App.Views.NotesView">
   <Grid>
-    <TextBlock Text="Все выбрано"/>
+
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="25"/>
+      <ColumnDefinition Width="150"/>
+      <ColumnDefinition Width="5"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <Grid Grid.Column="0" Background="Aqua">
+    </Grid>
+
+    <Grid Grid.Column="1" Background="Blue">
+      <TextBlock Text="TEST1"/>
+    </Grid>
+
+    <GridSplitter Grid.Column="2" SizeChanged="GridSplitter_SizeChanged"/>
+
+    <Grid Grid.Column="3" Background="Red">
+      <TextBlock Text="TEST2"/>
+    </Grid>
   </Grid>
 </UserControl>
