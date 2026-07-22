@@ -9,7 +9,7 @@
              x:DataType="vm:MainViewModel"
              >
     <Grid>
-        <TabControl Margin="5,10" ItemsSource="{Binding OpenNotes }">
+        <TabControl Margin="5,10" SelectedIndex="{Binding SelectedIndexTab, Mode=TwoWay}" ItemsSource="{Binding OpenNotes }">
             <TabControl.ItemTemplate>
                 <DataTemplate x:DataType="models:Note">
                     <StackPanel Orientation="Horizontal">

@@ -31,16 +31,10 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty] 
     private ObservableCollection<TreeFolderModel> tree = new();
 
+    [ObservableProperty] public ObservableCollection<Note> _openNotes = new();
+
     [ObservableProperty]
-    public ObservableCollection<Note> _openNotes = new()
-    {
-        new Note()
-        {
-            Id = 1,
-            Title = "TEST",
-            Content = "Привет Мир!"
-        }
-    };
+    public partial int SelectedIndexTab { get; set; }
 
     [ObservableProperty]
     public partial bool IsFolderSelected { get; set; }
@@ -58,11 +52,21 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     public void OpenTab(TreeFolderModel folder)
     {
+        var searchTab = _openNotes.FirstOrDefault(x => x.Path == folder.Path);
+
+        if (searchTab != null)
+        {
+            SelectedIndexTab = searchTab.OpenIndex ?? 0;
+            return;
+        }
+        
         _openNotes.Add(new Note()
         {
             Id = Random.Shared.Next(1, 9999),
             Title = folder.Name,
-            Content = File.ReadAllText(folder.Path)
+            Content = File.ReadAllText(folder.Path),
+            Path = folder.Path,
+            OpenIndex = _openNotes.Count
         });
     }
 
@@ -92,11 +96,16 @@ public partial class MainViewModel : ViewModelBase
             tree.Add(d);
         }
     }
-
+    
     public void CloseTab(int bTag)
     {
         var tab = _openNotes.FirstOrDefault(x => bTag == x.Id);
 
+        for (int i = tab.OpenIndex ?? 0; i < _openNotes.Count; i++)
+        {
+            _openNotes[i].OpenIndex--;
+        }
+        
         if (tab != null)
         {
             _openNotes.Remove(tab);
