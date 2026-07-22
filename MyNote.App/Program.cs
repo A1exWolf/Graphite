@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace MyNote;
+namespace MyNote.App;
 
 sealed class Program
 {

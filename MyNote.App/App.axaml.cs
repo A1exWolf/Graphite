@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using MyNote.ViewModels;
-using MyNote.Views;
+using MyNote.App.ViewModels;
+using MyNote.App.Views;
 
-namespace MyNote;
+namespace MyNote.App;
 
 public partial class App : Application
 {

@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "MyNote.App",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/MyNote.App/MyNote.App.csproj"
+    }
+  ]
+}

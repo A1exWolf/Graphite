@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace MyNote.ViewModels;
+namespace MyNote.App.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {

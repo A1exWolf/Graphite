@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace MyNote.Views;
+namespace MyNote.App.Views;
 
 public partial class MainWindow : Window
 {
