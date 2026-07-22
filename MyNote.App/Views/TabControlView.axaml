@@ -3,20 +3,45 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="MyNote.App.Views.TabControlView">
+             x:Class="MyNote.App.Views.TabControlView"
+             xmlns:vm="using:MyNote.App.ViewModels"
+             xmlns:models="using:MyNote.Domain.Notes"
+             x:DataType="vm:MainViewModel"
+             >
     <Grid>
-        <TabControl Margin="5,10">
-            <TabItem Header="TEst">
-                
-            </TabItem>
+        <TabControl Margin="5,10" ItemsSource="{Binding OpenNotes }">
+            <TabControl.ItemTemplate>
+                <DataTemplate x:DataType="models:Note">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            MaxWidth="180"
+                            Text="{Binding Title}"
+                            TextTrimming="CharacterEllipsis" />
+                        <Button Content="X"/>
+                    </StackPanel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
             
-            <TabItem Header="TEst2">
-                
-            </TabItem>
-            
-            <TabItem Header="TEst3">
-                
-            </TabItem>
+            <TabControl.ContentTemplate>
+                <DataTemplate x:DataType="models:Note">
+                    <Grid
+                        Margin="12"
+                        RowDefinitions="Auto,*"
+                        RowSpacing="8">
+
+                        <TextBox
+                            Text="{Binding Title, Mode=TwoWay}" />
+
+                        <TextBox
+                            Grid.Row="1"
+                            AcceptsReturn="True"
+                            AcceptsTab="True"
+                            Text="{Binding Content, Mode=TwoWay}"
+                            TextWrapping="Wrap"/>
+
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
         </TabControl>
     </Grid>
 </UserControl>

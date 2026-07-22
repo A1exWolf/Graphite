@@ -10,7 +10,7 @@
   <Grid>
       <StackPanel Margin="5,10">
           <TextBox PlaceholderText="Поиск..."/>
-          <TreeView ItemsSource="{Binding Tree}">
+          <TreeView DoubleTapped="InputElement_OnDoubleTapped" ItemsSource="{Binding Tree}">
               <TreeView.ItemTemplate>
                   <TreeDataTemplate x:DataType="models:TreeFolderModel" ItemsSource="{Binding Children}">
                       <TextBlock Text="{Binding Name}" />

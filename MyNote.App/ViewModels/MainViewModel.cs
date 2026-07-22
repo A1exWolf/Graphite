@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
@@ -5,6 +6,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyNote.App.Models;
+using MyNote.Domain.Notes;
 
 namespace MyNote.App.ViewModels;
 
@@ -25,23 +27,16 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    [ObservableProperty] private ObservableCollection<TreeFolderModel> tree = new();
+
     [ObservableProperty]
-    private ObservableCollection<TreeFolderModel> tree = new()
+    public ObservableCollection<Note> _openNotes = new()
     {
-        new TreeFolderModel
+        new Note()
         {
-            Name = "First",
-            Children =
-            {
-                new TreeFolderModel
-                {
-                    Name = "Second"
-                },
-                new TreeFolderModel
-                {
-                    Name = "Three"
-                }
-            }
+            Id = 1,
+            Title = "TEST",
+            Content = "Привет Мир!"
         }
     };
 
@@ -58,6 +53,17 @@ public partial class MainViewModel : ViewModelBase
         IsFolderSelected = true;
     }
 
+    [RelayCommand]
+    public void OpenTab(TreeFolderModel folder)
+    {
+        _openNotes.Add(new Note()
+        {
+            Id = Random.Shared.Next(1, 9999),
+            Title = folder.Name,
+            Content = File.ReadAllText(folder.Path)
+        });
+    }
+
     private void ReadDirectory(string path)
     {
         var pathFolders = Directory.GetDirectories(path);
@@ -68,14 +74,16 @@ public partial class MainViewModel : ViewModelBase
 
             var d = new TreeFolderModel()
             {
-                Name = folderName
+                Name = folderName,
+                Path = pathFolder
             };
 
             foreach (var files in Directory.GetFiles(pathFolder))
             {
                 d.Children.Add(new TreeFolderModel()
                 {
-                    Name = Path.GetFileName(files)
+                    Name = Path.GetFileName(files),
+                    Path = files
                 });
             }
             
