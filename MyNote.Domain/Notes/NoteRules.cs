@@ -18,7 +18,7 @@ namespace MyNote.Domain.Notes
             return true;
         }
 
-        public static void IsValidNameExeption(string name)
+        public static void EnsureValidName(string name)
         {
             if (name.IndexOf('.') > -1)
                 throw new ArgumentException("Имя не может содержать точку");

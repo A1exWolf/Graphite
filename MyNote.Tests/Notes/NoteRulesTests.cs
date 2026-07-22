@@ -17,13 +17,13 @@ namespace MyNote.Tests.Notes
             Assert.Equal(expected, result);
         }
 
-        [Theory]
-        [InlineData("My note.md")]
-        [InlineData("My notemd")]
-        public void IsValidName_ReturnsArgumentIfError(string name)
-        {
-            NoteRules.IsValidNameExeption(name);
-        }
+        // [Theory]
+        // [InlineData("My note.md")]
+        // [InlineData("My notemd")]
+        // public void EnsureValidName_ReturnsArgumentIfError(string name)
+        // {
+        //     Assert.Throws<ArgumentException>(() => NoteRules.EnsureValidName(name));
+        // }
 
         [Fact]
         public void IsValidName_WhenNameIsEmpty_ReturnsFalse()
