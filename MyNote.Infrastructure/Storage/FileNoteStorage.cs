@@ -18,9 +18,26 @@ namespace MyNote.Infrastructure.Storage
             throw new NotImplementedException();
         }
 
-        Task<IReadOnlyList<Note>> INoteStorage.GetAllAsync(string vaultPath, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<NoteInfo>> ListAsync(string vaultPath, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            ArgumentException.ThrowIfNullOrWhiteSpace(vaultPath);
+
+            List<NoteInfo> noteList = new List<NoteInfo>();
+
+            if (!Directory.Exists(vaultPath))
+                return noteList;
+
+            var markdownFiles = Directory.EnumerateFiles(vaultPath, "*.md", SearchOption.AllDirectories);
+
+            foreach (var note in markdownFiles)
+            {
+                noteList.Add(new NoteInfo(note,
+                Path.GetRelativePath(vaultPath, note),
+                Path.GetFileNameWithoutExtension(note),
+                File.GetLastWriteTimeUtc(note)));
+            }
+
+            return noteList;
         }
 
         /// <summary>
