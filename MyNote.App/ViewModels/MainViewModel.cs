@@ -8,16 +8,19 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyNote.App.Models;
 using MyNote.Domain.Notes;
+using MyNote.Domain.Vaults;
 
 namespace MyNote.App.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
     private readonly INoteStorage _noteStorage;
+    private readonly IVaultManager _vaultManager;
     
-    public MainViewModel(INoteStorage noteStorage)
+    public MainViewModel(INoteStorage noteStorage, IVaultManager vaultManager)
     {
         _noteStorage = noteStorage ?? throw new ArgumentNullException(nameof(noteStorage));
+        _vaultManager = vaultManager ?? throw new ArgumentNullException(nameof(vaultManager));
     }
 
     [ObservableProperty] 
