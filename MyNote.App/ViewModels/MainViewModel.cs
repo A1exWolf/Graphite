@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -27,6 +28,7 @@ public partial class MainViewModel : ViewModelBase
     private ObservableCollection<TreeFolderModel> tree = [];
 
     [ObservableProperty] public ObservableCollection<Note> _openNotes = [];
+    [ObservableProperty] public ObservableCollection<NoteInfo> _notes = [];
 
     [ObservableProperty]
     public partial int SelectedIndexTab { get; set; }
@@ -37,12 +39,13 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     public partial string SelectedFolderPath { get; set; } = string.Empty;
 
-    [RelayCommand]
-    public void SetSelectedFolder(IStorageFolder folder)
-    {
-        SelectedFolderPath = folder.TryGetLocalPath() ?? folder.Path.ToString();
-        IsFolderSelected = true;
-    }
+    [ObservableProperty]
+    public partial string ErrorMessage { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool IsLoading { get; set; }
+
+    VaultInfo? CurrentVault { get; set; }
 
     [RelayCommand]
     public void OpenTab(TreeFolderModel folder)
@@ -65,6 +68,43 @@ public partial class MainViewModel : ViewModelBase
         });
     }
 
+    public async Task LoadVaultAsync(string path, CancellationToken token)
+    {
+        try
+        {
+            ErrorMessage = string.Empty;
+            IsLoading = true;
+
+            var vault = await _vaultManager.OpenAsync(path, token);
+
+            var notes = await _noteStorage.ListAsync(vault.Path, token);
+
+            Notes.Clear();
+
+            foreach (var note in notes)
+            {
+                Notes.Add(note);
+            }
+
+            CurrentVault = vault;
+            SelectedFolderPath = CurrentVault.Path;
+            IsFolderSelected = true;
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [Obsolete]
     private void ReadDirectory(string path)
     {
         var pathFolders = Directory.GetDirectories(path);
@@ -91,7 +131,8 @@ public partial class MainViewModel : ViewModelBase
             tree.Add(d);
         }
     }
-    
+
+    [Obsolete]
     public void CloseTab(int bTag)
     {
         var tab = OpenNotes.FirstOrDefault(x => bTag == x.Id);

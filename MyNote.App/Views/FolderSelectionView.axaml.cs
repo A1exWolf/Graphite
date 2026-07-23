@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -12,7 +13,12 @@ public partial class FolderSelectionView : UserControl
     public FolderSelectionView()
     {
         InitializeComponent();
+
+        cancellationToken = cancellationTokenSource.Token;
     }
+
+    CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    CancellationToken cancellationToken;
 
     private async void SelectFolder_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
@@ -28,9 +34,9 @@ public partial class FolderSelectionView : UserControl
 
         if (folders.Count == 0) return;
 
-        var selectedFolder = folders[0];
+        var selectedFolder = folders[0].TryGetLocalPath() ?? folders[0].Path.ToString(); ;
 
         if (DataContext is MainViewModel viewModel)
-            viewModel.SetSelectedFolder(selectedFolder);
+            await viewModel.LoadVaultAsync(selectedFolder, cancellationToken);
     }
 }
