@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using MyNote.App.ViewModels;
 using MyNote.App.Views;
+using MyNote.Infrastructure.Storage;
 
 namespace MyNote.App;
 
@@ -17,9 +18,12 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var noteStorage = new FileNoteStorage();
+            var mainView = new MainViewModel(noteStorage);
+            
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(),
+                DataContext = mainView,
             };
         }
 

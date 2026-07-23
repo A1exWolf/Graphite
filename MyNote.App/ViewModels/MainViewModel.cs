@@ -13,25 +13,17 @@ namespace MyNote.App.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    // TODO: Если сразу не задан путь и тд то после выбора ничего не парситься
-    public MainViewModel()
+    private readonly INoteStorage _noteStorage;
+    
+    public MainViewModel(INoteStorage noteStorage)
     {
-        #region DEBUG
-        IsFolderSelected = true;
-        SelectedFolderPath = @"C:\Users\Alex\Documents\TestValue";
-        #endregion
-
-        if (!string.IsNullOrWhiteSpace(SelectedFolderPath))
-        {
-            tree = new();
-            ReadDirectory(SelectedFolderPath);
-        }
+        _noteStorage = noteStorage ?? throw new ArgumentNullException(nameof(noteStorage));
     }
 
     [ObservableProperty] 
-    private ObservableCollection<TreeFolderModel> tree = new();
+    private ObservableCollection<TreeFolderModel> tree = [];
 
-    [ObservableProperty] public ObservableCollection<Note> _openNotes = new();
+    [ObservableProperty] public ObservableCollection<Note> _openNotes = [];
 
     [ObservableProperty]
     public partial int SelectedIndexTab { get; set; }
