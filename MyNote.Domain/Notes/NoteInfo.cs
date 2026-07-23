@@ -7,4 +7,4 @@ namespace MyNote.Domain.Notes;
 /// <param name="ReleativePath">Относительный путь внутри vault</param>
 /// <param name="Title">Имя</param>
 /// <param name="ModifiedAt">Время изменения</param>
-public sealed record NoteInfo(string Path, string ReleativePath, string Title, DateTime ModifiedAt);
+public sealed record NoteInfo(string Path, string RelativePath, string Title, DateTime ModifiedAt);

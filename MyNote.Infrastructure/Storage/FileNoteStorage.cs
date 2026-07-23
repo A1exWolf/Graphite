@@ -18,26 +18,49 @@ namespace MyNote.Infrastructure.Storage
             throw new NotImplementedException();
         }
 
-        public async Task<IReadOnlyList<NoteInfo>> ListAsync(string vaultPath, CancellationToken cancellationToken = default)
+        public Task<IReadOnlyList<NoteInfo>> ListAsync(
+            string vaultPath,
+            CancellationToken cancellationToken = default)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(vaultPath);
 
-            List<NoteInfo> noteList = new List<NoteInfo>();
+            return Task.Run<IReadOnlyList<NoteInfo>>(
+                () =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-            if (!Directory.Exists(vaultPath))
-                return noteList;
+                    if (!Directory.Exists(vaultPath))
+                    {
+                        throw new DirectoryNotFoundException(
+                            $"Данной директории нет: {vaultPath}");
+                    }
 
-            var markdownFiles = Directory.EnumerateFiles(vaultPath, "*.md", SearchOption.AllDirectories);
+                    var noteList = new List<NoteInfo>();
 
-            foreach (var note in markdownFiles)
-            {
-                noteList.Add(new NoteInfo(note,
-                Path.GetRelativePath(vaultPath, note),
-                Path.GetFileNameWithoutExtension(note),
-                File.GetLastWriteTimeUtc(note)));
-            }
+                    var markdownFiles = Directory.EnumerateFiles(
+                        vaultPath,
+                        "*.md",
+                        SearchOption.AllDirectories);
 
-            return noteList;
+                    foreach (var notePath in markdownFiles)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        noteList.Add(
+                            new NoteInfo(
+                                Path: notePath,
+                                RelativePath: Path.GetRelativePath(
+                                    vaultPath,
+                                    notePath),
+                                Title: Path.GetFileNameWithoutExtension(
+                                    notePath),
+                                ModifiedAt: File.GetLastWriteTimeUtc(
+                                    notePath)));
+                    }
+
+                    return noteList;
+                },
+                cancellationToken);
         }
 
         /// <summary>
