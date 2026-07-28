@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyNote.App.Models;
@@ -14,13 +13,6 @@ using MyNote.Domain.Vaults;
 
 namespace MyNote.App.ViewModels;
 
-//TODO: 
-//Лучше:
-// 1. Переименовать метод в InitializeAsync.
-// 2. Не вызывать его из конструктора.
-// 3. После создания окна вызвать его через событие Opened.
-// 4. Внутри использовать уже существующий LoadVaultAsync, чтобы не дублировать загрузку заметок.
-// 5. Устанавливать IsFolderSelected только после успешного открытия.
 public partial class MainViewModel : ViewModelBase
 {
     private readonly INoteStorage _noteStorage;
@@ -33,27 +25,18 @@ public partial class MainViewModel : ViewModelBase
         _vaultManager = vaultManager ?? throw new ArgumentNullException(nameof(vaultManager));
         _configStorage = configStorage ?? throw new ArgumentNullException(nameof(configStorage));
     }
-
-    [ObservableProperty] 
-    private ObservableCollection<TreeFolderModel> tree = [];
-
+    [ObservableProperty] private ObservableCollection<TreeFolderModel> tree = [];
     [ObservableProperty] public ObservableCollection<Note> _openNotes = [];
     [ObservableProperty] public ObservableCollection<NoteInfo> _notes = [];
 
-    [ObservableProperty]
-    public partial int SelectedIndexTab { get; set; }
+    [ObservableProperty] public partial Note? SelectedNote { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsFolderSelected { get; set; }
+    [ObservableProperty] public partial bool IsFolderSelected { get; set; }
+    [ObservableProperty] public partial string SelectedFolderPath { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial string SelectedFolderPath { get; set; } = string.Empty;
+    [ObservableProperty] public partial string ErrorMessage { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial string ErrorMessage { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial bool IsLoading { get; set; }
+    [ObservableProperty] public partial bool IsLoading { get; set; }
 
     VaultInfo? CurrentVault { get; set; }
     private Config? _config { get; set; }
@@ -65,8 +48,7 @@ public partial class MainViewModel : ViewModelBase
 
         if (searchTab != null)
         {
-            SelectedIndexTab = searchTab.OpenIndex ?? 0;
-            return;
+            // TODO: Доделывается в след день
         }
         
         OpenNotes.Add(new Note()
@@ -75,7 +57,7 @@ public partial class MainViewModel : ViewModelBase
             Title = folder.Name,
             Content = File.ReadAllText(folder.Path),
             Path = folder.Path,
-            OpenIndex = OpenNotes.Count
+            //OpenIndex = OpenNotes.Count Убрал из модели это состояние а не описание
         });
     }
 
@@ -143,48 +125,10 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-
-    [Obsolete]
-    private void ReadDirectory(string path)
-    {
-        var pathFolders = Directory.GetDirectories(path);
-
-        foreach (var pathFolder in pathFolders)
-        {
-            var folderName = Path.GetFileName(pathFolder);
-
-            var d = new TreeFolderModel()
-            {
-                Name = folderName,
-                Path = pathFolder
-            };
-
-            foreach (var files in Directory.GetFiles(pathFolder))
-            {
-                d.Children.Add(new TreeFolderModel()
-                {
-                    Name = Path.GetFileName(files),
-                    Path = files
-                });
-            }
-            
-            tree.Add(d);
-        }
-    }
-
+    //todo: скорее всего с индексами не нужно работать можно проще
     [Obsolete]
     public void CloseTab(int bTag)
     {
-        var tab = OpenNotes.FirstOrDefault(x => bTag == x.Id);
-
-        for (int i = tab.OpenIndex ?? 0; i < OpenNotes.Count; i++)
-        {
-            OpenNotes[i].OpenIndex--;
-        }
         
-        if (tab != null)
-        {
-            OpenNotes.Remove(tab);
-        }
     }
 }

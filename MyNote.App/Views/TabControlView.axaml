@@ -6,10 +6,14 @@
              x:Class="MyNote.App.Views.TabControlView"
              xmlns:vm="using:MyNote.App.ViewModels"
              xmlns:models="using:MyNote.Domain.Notes"
-             x:DataType="vm:MainViewModel"
-             >
+             x:DataType="vm:MainViewModel">
     <Grid>
-        <TabControl Margin="5,10" SelectedIndex="{Binding SelectedIndexTab, Mode=TwoWay}" ItemsSource="{Binding OpenNotes }">
+        <StackPanel IsVisible="{Binding !OpenNotes.Count}" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="Выберите или создайте заметку" FontSize="30" Margin="0,0,0,10"/>
+            <Button Content="Создать заметку" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <TabControl Margin="5,10" IsVisible="{Binding OpenNotes.Count}" ItemsSource="{Binding OpenNotes }">
             <TabControl.ItemTemplate>
                 <DataTemplate x:DataType="models:Note">
                     <StackPanel Orientation="Horizontal">

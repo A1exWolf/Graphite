@@ -20,7 +20,7 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <views:TopMenuView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
+    <views:TopMenuView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"/>
 
     <views:TreeFolderView Grid.Row="1" Grid.Column="0"/>
 
