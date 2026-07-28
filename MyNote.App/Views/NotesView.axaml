@@ -9,20 +9,23 @@
              x:Class="MyNote.App.Views.NotesView">
   <Grid>
 
+    <Grid.RowDefinitions>
+      <RowDefinition Height="25"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="35"/>
       <ColumnDefinition Width="150" MaxWidth="500"/>
       <ColumnDefinition Width="5"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Grid Grid.Column="0" Background="Aqua">
-    </Grid>
+    <views:TopMenuView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"/>
 
-    <views:TreeFolderView Grid.Column="1"/>
+    <views:TreeFolderView Grid.Row="1" Grid.Column="0"/>
 
-    <GridSplitter Grid.Column="2" Background="Gray" SizeChanged="GridSplitter_SizeChanged"/>
+    <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" SizeChanged="GridSplitter_SizeChanged"/>
 
-    <views:TabControlView Grid.Column="3"/>
+    <views:TabControlView Grid.Row="1" Grid.Column="2"/>
   </Grid>
 </UserControl>
