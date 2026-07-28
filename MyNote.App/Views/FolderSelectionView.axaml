@@ -18,5 +18,11 @@
                Margin="0,0,0,15"/>
 
     <Button Click="SelectFolder_Click" Content="Выбрать папку" HorizontalAlignment="Center" Background="PeachPuff"/>
+
+    <TextBlock Text="{Binding ErrorMessage}" 
+               Foreground="IndianRed" 
+               TextWrapping="Wrap" 
+               TextAlignment="Center" 
+               Margin="0,10,0,0"/>
   </StackPanel>
 </UserControl>

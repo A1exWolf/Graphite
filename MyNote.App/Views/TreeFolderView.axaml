@@ -20,7 +20,7 @@
           <ListBox ItemsSource="{Binding Notes}">
               <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="notes:NoteInfo">
-                    <TextBlock Text="{Binding Title}"/>
+                    <TextBlock Text="{Binding RelativePath}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>

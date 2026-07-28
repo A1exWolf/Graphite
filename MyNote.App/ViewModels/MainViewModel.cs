@@ -8,20 +8,30 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MyNote.App.Models;
+using MyNote.Domain.Config;
 using MyNote.Domain.Notes;
 using MyNote.Domain.Vaults;
 
 namespace MyNote.App.ViewModels;
 
+//TODO: 
+//Лучше:
+// 1. Переименовать метод в InitializeAsync.
+// 2. Не вызывать его из конструктора.
+// 3. После создания окна вызвать его через событие Opened.
+// 4. Внутри использовать уже существующий LoadVaultAsync, чтобы не дублировать загрузку заметок.
+// 5. Устанавливать IsFolderSelected только после успешного открытия.
 public partial class MainViewModel : ViewModelBase
 {
     private readonly INoteStorage _noteStorage;
     private readonly IVaultManager _vaultManager;
+    private readonly IConfigStorage _configStorage;
     
-    public MainViewModel(INoteStorage noteStorage, IVaultManager vaultManager)
+    public MainViewModel(INoteStorage noteStorage, IVaultManager vaultManager, IConfigStorage configStorage)
     {
         _noteStorage = noteStorage ?? throw new ArgumentNullException(nameof(noteStorage));
         _vaultManager = vaultManager ?? throw new ArgumentNullException(nameof(vaultManager));
+        _configStorage = configStorage ?? throw new ArgumentNullException(nameof(configStorage));
     }
 
     [ObservableProperty] 
@@ -46,6 +56,7 @@ public partial class MainViewModel : ViewModelBase
     public partial bool IsLoading { get; set; }
 
     VaultInfo? CurrentVault { get; set; }
+    private Config? _config { get; set; }
 
     [RelayCommand]
     public void OpenTab(TreeFolderModel folder)
@@ -89,6 +100,8 @@ public partial class MainViewModel : ViewModelBase
             CurrentVault = vault;
             SelectedFolderPath = CurrentVault.Path;
             IsFolderSelected = true;
+
+            await _configStorage.ReplaceFieldAsync(ConfigField.VaultPath, CurrentVault.Path, token);
         }
         catch (OperationCanceledException)
         {
@@ -103,6 +116,33 @@ public partial class MainViewModel : ViewModelBase
             IsLoading = false;
         }
     }
+
+    public async Task InitializeAsync(CancellationToken token = default)
+    {
+        try
+        {
+            ErrorMessage = string.Empty;
+
+            var config = await _configStorage.GetConfigAsync(token);
+
+            if (string.IsNullOrEmpty(config.LastOpenVault))
+                return;
+
+            await LoadVaultAsync(config.LastOpenVault, token);
+
+            _config = config;
+        }
+        catch (OperationCanceledException)
+        {
+
+        }
+        catch (Exception e)
+        {
+            IsFolderSelected = false;
+            ErrorMessage = e.Message;
+        }
+    }
+
 
     [Obsolete]
     private void ReadDirectory(string path)
