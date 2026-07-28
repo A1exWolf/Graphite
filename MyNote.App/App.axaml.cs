@@ -3,6 +3,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using MyNote.App.ViewModels;
 using MyNote.App.Views;
+using MyNote.Infrastructure.Config;
+using MyNote.Infrastructure.Storage;
+using MyNote.Infrastructure.Vault;
 
 namespace MyNote.App;
 
@@ -17,10 +20,24 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            var configManager = new ConfigManager();
+            var noteStorage = new FileNoteStorage();
+            var vaultManager = new FileVaultManager();
+            
+            var mainView = new MainViewModel(noteStorage, vaultManager, configManager);
+
+            var mainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(),
+                DataContext = mainView,
             };
+
+            mainWindow.Opened += async (_, _) =>
+            {
+                await mainView.InitializeAsync();
+            };
+
+            desktop.MainWindow = mainWindow;
+
         }
 
         base.OnFrameworkInitializationCompleted();

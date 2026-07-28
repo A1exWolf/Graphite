@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="using:MyNote.App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MyNote.App.Views.FolderSelectionView"
+             x:DataType="viewmodels:MainViewModel">
+
+
+  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+    <TextBlock Text="Для работы с заметками"
+               TextAlignment="Center"
+               FontWeight="Bold"/>
+    <TextBlock Text="нужно выбрать или создать хранилище"
+               TextAlignment="Center"
+               FontWeight="Bold"
+               Margin="0,0,0,15"/>
+
+    <Button Click="SelectFolder_Click" Content="Выбрать папку" HorizontalAlignment="Center" Background="PeachPuff"/>
+
+    <TextBlock Text="{Binding ErrorMessage}" 
+               Foreground="IndianRed" 
+               TextWrapping="Wrap" 
+               TextAlignment="Center" 
+               Margin="0,10,0,0"/>
+  </StackPanel>
+</UserControl>
