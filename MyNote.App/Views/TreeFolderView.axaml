@@ -7,23 +7,25 @@
              xmlns:vm="using:MyNote.App.ViewModels"
              xmlns:notes="using:MyNote.Domain.Notes"
              x:DataType="vm:MainViewModel">
-  <Grid>
-      <StackPanel Margin="5,10">
-          <TextBox PlaceholderText="Поиск..." Margin="0,0,0,10"/>
-          <!--<TreeView DoubleTapped="InputElement_OnDoubleTapped" ItemsSource="{Binding Tree}">
+  <Grid Margin="5, 10">
+      <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <TextBox Grid.Row="0" PlaceholderText="Поиск..." Margin="0,0,0,10"/>
+      <!--<TreeView DoubleTapped="InputElement_OnDoubleTapped" ItemsSource="{Binding Tree}">
               <TreeView.ItemTemplate>
                   <TreeDataTemplate x:DataType="models:TreeFolderModel" ItemsSource="{Binding Children}">
                       <TextBlock Text="{Binding Name}" />
                   </TreeDataTemplate>
               </TreeView.ItemTemplate>
           </TreeView>-->
-          <ListBox ItemsSource="{Binding Notes}">
-              <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="notes:NoteInfo">
-                    <TextBlock Text="{Binding RelativePath}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-      </StackPanel>
+      <ListBox Grid.Row="1" ItemsSource="{Binding Notes}">
+          <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="notes:NoteInfo">
+                  <TextBlock Text="{Binding RelativePath}"/>
+              </DataTemplate>
+          </ListBox.ItemTemplate>
+      </ListBox>
   </Grid>
 </UserControl>
