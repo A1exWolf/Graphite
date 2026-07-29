@@ -19,7 +19,7 @@ namespace MyNote.Infrastructure.Config
             if (!string.IsNullOrEmpty(configName) && Path.GetExtension(configName) == ".json")
             {
                 _configName = configName;
-                _pathConfig = Path.Combine(AppContext.BaseDirectory, _configName);
+                _pathConfig = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Graphite" , _configName);
             }
             else
             {
@@ -70,6 +70,8 @@ namespace MyNote.Infrastructure.Config
                 {
                     File.Delete(_pathConfig);
                 }
+
+                Directory.CreateDirectory(Path.GetDirectoryName(_pathConfig)!);
 
                 var configJsonSerialaze = JsonSerializer.Serialize(newConfig);
 
