@@ -33,20 +33,20 @@ namespace MyNote.Infrastructure.Config
             {
                 if (!File.Exists(_pathConfig))
                 {
-                    await SaveConfigAsync(new Domain.Config.Config()
-                    {
-                        LastOpenVault = string.Empty
-                    }, token);
+                    await SaveConfigAsync(new Domain.Config.Config(), token);
                 }
 
                 var getFile = await File.ReadAllTextAsync(_pathConfig, token);
 
                 if (string.IsNullOrEmpty(getFile))
                 {
+                    await SaveConfigAsync(new Domain.Config.Config(), token);
+
                     throw new ArgumentNullException($"Файл {nameof(_configName)} пуст");
                 }
 
-                var config = JsonSerializer.Deserialize<Domain.Config.Config>(getFile);
+                var config = JsonSerializer.Deserialize<Domain.Config.Config>(getFile) ??
+                             await SaveConfigAsync(new Domain.Config.Config(), token);
 
                 return config;
             }
@@ -54,12 +54,16 @@ namespace MyNote.Infrastructure.Config
             {
                 throw new NotSupportedException("Ошибка во время сериализации");
             }
+            catch (JsonException)
+            {
+                await SaveConfigAsync(new Domain.Config.Config(), token);
+
+                throw new JsonException($"Ошибка во время попытки чтения конфига по пути {_pathConfig}. Откройте хранилище заново");
+            }
             catch
             {
                 throw new InvalidOperationException($"Ошибка во время записи файл {nameof(_configName)}");
             }
-
-
         }
 
         public async Task<Domain.Config.Config> SaveConfigAsync(Domain.Config.Config newConfig, CancellationToken token = default)
