@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="150" d:DesignHeight="450"
              x:Class="MyNote.App.Views.TreeFolderView"
              xmlns:vm="using:MyNote.App.ViewModels"
-             xmlns:notes="using:MyNote.Domain.Notes"
+             xmlns:vault="using:MyNote.Domain.Vaults"
              x:DataType="vm:MainViewModel">
   <Grid Margin="5, 10">
       <Grid.RowDefinitions>
@@ -13,19 +13,12 @@
           <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <TextBox Grid.Row="0" PlaceholderText="Поиск..." Margin="0,0,0,10"/>
-      <!--<TreeView DoubleTapped="InputElement_OnDoubleTapped" ItemsSource="{Binding Tree}">
+      <TreeView Grid.Row="1" DoubleTapped="InputElement_OnDoubleTapped" ItemsSource="{Binding Tree}">
               <TreeView.ItemTemplate>
-                  <TreeDataTemplate x:DataType="models:TreeFolderModel" ItemsSource="{Binding Children}">
+                  <TreeDataTemplate x:DataType="vault:NoteNode" ItemsSource="{Binding Children}">
                       <TextBlock Text="{Binding Name}" />
                   </TreeDataTemplate>
               </TreeView.ItemTemplate>
-          </TreeView>-->
-      <ListBox Grid.Row="1" ItemsSource="{Binding Notes}">
-          <ListBox.ItemTemplate>
-              <DataTemplate x:DataType="notes:NoteInfo">
-                  <TextBlock Text="{Binding RelativePath}"/>
-              </DataTemplate>
-          </ListBox.ItemTemplate>
-      </ListBox>
+          </TreeView>
   </Grid>
 </UserControl>

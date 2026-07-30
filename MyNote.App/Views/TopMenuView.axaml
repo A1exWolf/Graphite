@@ -10,6 +10,7 @@
     <DockPanel >
         <Menu DockPanel.Dock="Top">
             <MenuItem  Header="_Vault">
+                <MenuItem Header="_Refresh" Click="MenuItem_OnClick"/>
                 <MenuItem Header="_Open"/>
                 <MenuItem Header="_Close"/>
             </MenuItem>

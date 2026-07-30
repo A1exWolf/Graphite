@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -6,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyNote.App.Models;
 using MyNote.Domain.Config;
 using MyNote.Domain.Notes;
 using MyNote.Domain.Vaults;
+using MyNote.Infrastructure.Vault;
 
 namespace MyNote.App.ViewModels;
 
@@ -18,16 +19,17 @@ public partial class MainViewModel : ViewModelBase
     private readonly INoteStorage _noteStorage;
     private readonly IVaultManager _vaultManager;
     private readonly IConfigStorage _configStorage;
+    private readonly IVaultTreeReader _vaultTreeReader;
     
-    public MainViewModel(INoteStorage noteStorage, IVaultManager vaultManager, IConfigStorage configStorage)
+    public MainViewModel(INoteStorage noteStorage, IVaultManager vaultManager, IConfigStorage configStorage, IVaultTreeReader vaultTreeReader)
     {
         _noteStorage = noteStorage ?? throw new ArgumentNullException(nameof(noteStorage));
         _vaultManager = vaultManager ?? throw new ArgumentNullException(nameof(vaultManager));
         _configStorage = configStorage ?? throw new ArgumentNullException(nameof(configStorage));
+        _vaultTreeReader = vaultTreeReader ?? throw new ArgumentNullException(nameof(vaultTreeReader));
     }
-    [ObservableProperty] private ObservableCollection<TreeFolderModel> tree = [];
+    [ObservableProperty] public List<NoteNode> tree = [];
     [ObservableProperty] public ObservableCollection<Note> _openNotes = [];
-    [ObservableProperty] public ObservableCollection<NoteInfo> _notes = [];
 
     [ObservableProperty] public partial Note? SelectedNote { get; set; }
 
@@ -42,7 +44,7 @@ public partial class MainViewModel : ViewModelBase
     private Config? _config { get; set; }
 
     [RelayCommand]
-    public void OpenTab(TreeFolderModel folder)
+    public void OpenTab(NoteNode folder)
     {
         var searchTab = OpenNotes.FirstOrDefault(x => x.Path == folder.Path);
 
@@ -61,6 +63,11 @@ public partial class MainViewModel : ViewModelBase
         });
     }
 
+    public async Task Refresh(string path, CancellationToken token)
+    {
+        await LoadVaultAsync(path, token);
+    }
+
     public async Task LoadVaultAsync(string path, CancellationToken token)
     {
         try
@@ -70,14 +77,14 @@ public partial class MainViewModel : ViewModelBase
 
             var vault = await _vaultManager.OpenAsync(path, token);
 
-            var notes = await _noteStorage.ListAsync(vault.Path, token);
+            var newTree = new List<NoteNode>();
 
-            Notes.Clear();
-
-            foreach (var note in notes)
+            await Task.Run(() =>
             {
-                Notes.Add(note);
-            }
+                _vaultTreeReader.ReadDirectory(path, newTree);
+            }, token);
+
+            Tree = newTree;
 
             CurrentVault = vault;
             SelectedFolderPath = CurrentVault.Path;
