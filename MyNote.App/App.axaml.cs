@@ -23,8 +23,9 @@ public partial class App : Application
             var configManager = new ConfigManager();
             var noteStorage = new FileNoteStorage();
             var vaultManager = new FileVaultManager();
+            var vaultReader = new FileVaultTreeReader();
             
-            var mainView = new MainViewModel(noteStorage, vaultManager, configManager);
+            var mainView = new MainViewModel(noteStorage, vaultManager, configManager, vaultReader);
 
             var mainWindow = new MainWindow
             {
