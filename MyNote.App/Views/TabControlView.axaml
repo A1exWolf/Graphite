@@ -5,29 +5,34 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MyNote.App.Views.TabControlView"
              xmlns:vm="using:MyNote.App.ViewModels"
-             xmlns:models="using:MyNote.Domain.Notes"
-             x:DataType="vm:MainViewModel">
+             x:DataType="vm:EditorTabsViewModel">
     <Grid>
         <StackPanel IsVisible="{Binding !OpenNotes.Count}" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="Выберите или создайте заметку" FontSize="30" Margin="0,0,0,10"/>
-            <Button Content="Создать заметку" HorizontalAlignment="Center"/>
+            <TextBlock Text="Выберите или создайте заметку" FontSize="30" Margin="0,0,0,10" />
+            <Button Content="Создать заметку" HorizontalAlignment="Center" />
         </StackPanel>
 
-        <TabControl Margin="5,10" IsVisible="{Binding OpenNotes.Count}" ItemsSource="{Binding OpenNotes }">
+        <TabControl Margin="5,10"
+                    IsVisible="{Binding OpenNotes.Count}"
+                    ItemsSource="{Binding OpenNotes }"
+                    SelectedItem="{Binding SelectedNote}">
             <TabControl.ItemTemplate>
-                <DataTemplate x:DataType="models:Note">
+                <DataTemplate x:DataType="vm:NoteTabViewModel">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock
                             MaxWidth="180"
                             Text="{Binding Title}"
                             TextTrimming="CharacterEllipsis" />
-                        <Button Content="X" Tag="{Binding Id}" Click="Button_OnClick"/>
+                        <Button
+                            Content="X"
+                            Command="{Binding $parent[UserControl].((vm:EditorTabsViewModel)DataContext)?.CloseTabCommand}"
+                            CommandParameter="{Binding}" />
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
-            
+
             <TabControl.ContentTemplate>
-                <DataTemplate x:DataType="models:Note">
+                <DataTemplate x:DataType="vm:NoteTabViewModel">
                     <Grid
                         Margin="12"
                         RowDefinitions="Auto,*"
@@ -41,7 +46,7 @@
                             AcceptsReturn="True"
                             AcceptsTab="True"
                             Text="{Binding Content, Mode=TwoWay}"
-                            TextWrapping="Wrap"/>
+                            TextWrapping="Wrap" />
 
                     </Grid>
                 </DataTemplate>

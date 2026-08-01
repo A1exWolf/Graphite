@@ -26,6 +26,9 @@
 
     <GridSplitter Grid.Row="1" Grid.Column="1" Background="Gray" SizeChanged="GridSplitter_SizeChanged"/>
 
-    <views:TabControlView Grid.Row="1" Grid.Column="2"/>
+    <views:TabControlView 
+        Grid.Row="1" 
+        Grid.Column="2"
+        DataContext="{Binding EditorTabsViewModel}"/>
   </Grid>
 </UserControl>

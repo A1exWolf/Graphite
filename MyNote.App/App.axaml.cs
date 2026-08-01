@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using MyNote.App.ViewModels;
 using MyNote.App.Views;
+using MyNote.Domain.Notes;
 using MyNote.Infrastructure.Config;
 using MyNote.Infrastructure.Storage;
 using MyNote.Infrastructure.Vault;
@@ -24,8 +25,13 @@ public partial class App : Application
             var noteStorage = new FileNoteStorage();
             var vaultManager = new FileVaultManager();
             var vaultReader = new FileVaultTreeReader();
-            
-            var mainView = new MainViewModel(noteStorage, vaultManager, configManager, vaultReader);
+            var editorTabsViewModel = new EditorTabsViewModel(noteStorage);
+
+            var mainView = new MainViewModel(
+                vaultManager, 
+                configManager, 
+                vaultReader,
+                editorTabsViewModel);
 
             var mainWindow = new MainWindow
             {

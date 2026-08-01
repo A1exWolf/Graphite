@@ -16,22 +16,25 @@ namespace MyNote.App.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    private readonly INoteStorage _noteStorage;
     private readonly IVaultManager _vaultManager;
     private readonly IConfigStorage _configStorage;
     private readonly IVaultTreeReader _vaultTreeReader;
     
-    public MainViewModel(INoteStorage noteStorage, IVaultManager vaultManager, IConfigStorage configStorage, IVaultTreeReader vaultTreeReader)
+    public MainViewModel( 
+        IVaultManager vaultManager, 
+        IConfigStorage configStorage, 
+        IVaultTreeReader vaultTreeReader,
+        EditorTabsViewModel editorTabsViewModel)
     {
-        _noteStorage = noteStorage ?? throw new ArgumentNullException(nameof(noteStorage));
         _vaultManager = vaultManager ?? throw new ArgumentNullException(nameof(vaultManager));
         _configStorage = configStorage ?? throw new ArgumentNullException(nameof(configStorage));
         _vaultTreeReader = vaultTreeReader ?? throw new ArgumentNullException(nameof(vaultTreeReader));
+        EditorTabsViewModel = editorTabsViewModel ?? throw new ArgumentNullException(nameof(editorTabsViewModel));
     }
-    [ObservableProperty] public List<NoteNode> tree = [];
-    [ObservableProperty] public ObservableCollection<Note> _openNotes = [];
 
-    [ObservableProperty] public partial Note? SelectedNote { get; set; }
+    public EditorTabsViewModel EditorTabsViewModel { get; }
+
+    [ObservableProperty] public List<NoteNode> tree = [];
 
     [ObservableProperty] public partial bool IsFolderSelected { get; set; }
     [ObservableProperty] public partial string SelectedFolderPath { get; set; } = string.Empty;
@@ -42,26 +45,6 @@ public partial class MainViewModel : ViewModelBase
 
     VaultInfo? CurrentVault { get; set; }
     private Config? _config { get; set; }
-
-    [RelayCommand]
-    public void OpenTab(NoteNode folder)
-    {
-        var searchTab = OpenNotes.FirstOrDefault(x => x.Path == folder.Path);
-
-        if (searchTab != null)
-        {
-            // TODO: Доделывается в след день
-        }
-        
-        OpenNotes.Add(new Note()
-        {
-            Id = Random.Shared.Next(1, 9999),
-            Title = folder.Name,
-            Content = File.ReadAllText(folder.Path),
-            Path = folder.Path,
-            //OpenIndex = OpenNotes.Count Убрал из модели это состояние а не описание
-        });
-    }
 
     public async Task Refresh(string path, CancellationToken token)
     {
@@ -130,12 +113,5 @@ public partial class MainViewModel : ViewModelBase
             IsFolderSelected = false;
             ErrorMessage = e.Message;
         }
-    }
-
-    //todo: скорее всего с индексами не нужно работать можно проще
-    [Obsolete]
-    public void CloseTab(int bTag)
-    {
-        
     }
 }
