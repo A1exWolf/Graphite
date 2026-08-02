@@ -8,7 +8,56 @@ namespace MyNote.Infrastructure.Storage
     /// </summary>
     public class FileNoteStorage : INoteStorage
     {
-        Task INoteStorage.CreateAsync()
+        /// <summary>
+        /// Create note
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<Note> CreateAsync(string folderPath, string name, CancellationToken cancellationToken = default)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(folderPath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+            if (!Directory.Exists(folderPath))
+                throw new DirectoryNotFoundException("Не найдена директория");
+
+            if (!CheckAvialableName(name)) 
+                throw new IOException("Имя файла содержит недопустимые символы");
+
+            if (File.Exists(Path.Combine(folderPath, name)))
+                throw new DuplicateWaitObjectException("Файл уже существует");
+
+            try
+            {
+                File.Create(Path.Combine(folderPath, name));
+
+                return new Task<Note>(() => new Note
+                {
+                    Path = folderPath,
+                    Title = name,
+                    Content = string.Empty
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                throw new OperationCanceledException();
+            }
+            catch (Exception e)
+            {
+                throw new IOException("Ошибка во время создания файла");
+            }
+        }
+
+        /// <summary>
+        /// function for check name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        private bool CheckAvialableName(string name)
         {
             throw new NotImplementedException();
         }

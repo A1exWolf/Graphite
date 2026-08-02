@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Avalonia.Controls;
 
 namespace MyNote.App.Views;

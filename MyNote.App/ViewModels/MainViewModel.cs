@@ -1,16 +1,13 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using MyNote.Domain.Config;
+using MyNote.Domain.Vaults;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyNote.Domain.Config;
-using MyNote.Domain.Notes;
-using MyNote.Domain.Vaults;
-using MyNote.Infrastructure.Vault;
+using MyNote.App.Views;
 
 namespace MyNote.App.ViewModels;
 
@@ -45,6 +42,14 @@ public partial class MainViewModel : ViewModelBase
 
     VaultInfo? CurrentVault { get; set; }
     private Config? _config { get; set; }
+
+    [RelayCommand]
+    public async Task OpenNewNote(string path = "")
+    {
+        var folderPathList = Tree.Where(x => x.TypeNode == TypeNode.Folder).Select(x => x.Path).ToList();
+        var newNoteView = new NewNoteView(folderPathList, path);
+        newNoteView.Show();
+    }
 
     public async Task Refresh(string path, CancellationToken token)
     {
