@@ -15,7 +15,7 @@
                 <MenuItem Header="_Close"/>
             </MenuItem>
             <MenuItem  Header="_File">
-                <MenuItem Header="_Create"/>
+                <MenuItem Header="_Create" Command="{Binding OpenNewNoteCommand}" InputGesture="Ctrl+N"/>
                 <MenuItem Header="_Delete"/>
             </MenuItem>
         </Menu>
