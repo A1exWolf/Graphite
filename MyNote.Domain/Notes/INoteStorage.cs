@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace MyNote.Domain.Notes
 {
     public interface INoteStorage

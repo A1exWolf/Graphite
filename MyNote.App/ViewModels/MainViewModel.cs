@@ -1,13 +1,16 @@
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-using MyNote.Domain.Config;
-using MyNote.Domain.Vaults;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using MyNote.App.Views;
+using MyNote.Domain.Config;
+using MyNote.Domain.Notes;
+using MyNote.Domain.Vaults;
+using MyNote.Infrastructure.Storage;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MyNote.App.ViewModels;
 
@@ -30,6 +33,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     public EditorTabsViewModel EditorTabsViewModel { get; }
+    public Window Owner { get; set; }
 
     [ObservableProperty] public List<NoteNode> tree = [];
 
@@ -46,9 +50,24 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     public async Task OpenNewNote(string path = "")
     {
-        var folderPathList = Tree.Where(x => x.TypeNode == TypeNode.Folder).Select(x => x.Path).ToList();
-        var newNoteView = new NewNoteView(folderPathList, path);
-        newNoteView.Show();
+        var listFolder = new List<string>{ SelectedFolderPath };
+        listFolder.AddRange(Directory.GetDirectories(SelectedFolderPath, "*", 
+            new EnumerationOptions() { RecurseSubdirectories = true }));
+        var newNoteViewModel = new NewNoteViewModel(new FileNoteStorage(), 
+            listFolder, 
+            string.IsNullOrEmpty(path) ? SelectedFolderPath : path);
+        var newNoteView = new NewNoteView
+        {
+            DataContext = newNoteViewModel
+        };
+        newNoteViewModel.CloseRequested += newNoteView.Close;
+        var note = await newNoteView.ShowDialog<Note?>(Owner);
+
+        if (note != null)
+        {
+            await Refresh(SelectedFolderPath, default);
+            await EditorTabsViewModel.OpenNote(note.Path, default);
+        }
     }
 
     public async Task Refresh(string path, CancellationToken token)

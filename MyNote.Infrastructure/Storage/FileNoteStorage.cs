@@ -16,50 +16,60 @@ namespace MyNote.Infrastructure.Storage
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<Note> CreateAsync(string folderPath, string name, CancellationToken cancellationToken = default)
+        public async Task<Note> CreateAsync(string folderPath, string name,
+            CancellationToken cancellationToken = default)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(folderPath);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (!Directory.Exists(folderPath))
-                throw new DirectoryNotFoundException("Не найдена директория");
+                throw new DirectoryNotFoundException(
+                    $"Папка не найдена: {folderPath}");
 
-            if (!CheckAvialableName(name)) 
-                throw new IOException("Имя файла содержит недопустимые символы");
+            var title = name.Trim();
 
-            if (File.Exists(Path.Combine(folderPath, name)))
-                throw new DuplicateWaitObjectException("Файл уже существует");
+            if (!NoteRules.IsValidName(title) ||
+                title.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new ArgumentException(
+                    "Имя заметки содержит недопустимые символы.",
+                    nameof(name));
+            }
+
+            var fileName = $"{title}.md";
+            var filePath = Path.Combine(folderPath, fileName);
 
             try
             {
-                File.Create(Path.Combine(folderPath, name));
-
-                return new Task<Note>(() => new Note
+                await using (var stream = new FileStream(
+                                 filePath,
+                                 new FileStreamOptions
+                                 {
+                                     Mode = FileMode.CreateNew,
+                                     Access = FileAccess.Write,
+                                     Share = FileShare.None,
+                                     Options = FileOptions.Asynchronous
+                                 }))
                 {
-                    Path = folderPath,
-                    Title = name,
-                    Content = string.Empty
-                });
+                    
+                }
             }
-            catch (OperationCanceledException)
+            catch (IOException exception) when (File.Exists(filePath))
             {
-                throw new OperationCanceledException();
+                throw new IOException(
+                    $"Заметка «{title}» уже существует.",
+                    exception);
             }
-            catch (Exception e)
-            {
-                throw new IOException("Ошибка во время создания файла");
-            }
-        }
 
-        /// <summary>
-        /// function for check name
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        private bool CheckAvialableName(string name)
-        {
-            throw new NotImplementedException();
+            return new Note
+            {
+                Path = filePath,
+                Title = title,
+                Content = string.Empty,
+                ModifiedAt = File.GetLastWriteTimeUtc(filePath)
+            };
         }
 
         Task INoteStorage.DeleteAsync()
