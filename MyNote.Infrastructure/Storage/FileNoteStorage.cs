@@ -77,9 +77,11 @@ namespace MyNote.Infrastructure.Storage
             throw new NotImplementedException();
         }
 
-        public async Task<bool> SaveAsync(Note note, CancellationToken token = default)
+        public async Task SaveAsync(Note note, CancellationToken token = default)
         {
             ArgumentException.ThrowIfNullOrEmpty(note.Path);
+
+            string tempPath = string.Empty;
 
             try
             {
@@ -87,30 +89,29 @@ namespace MyNote.Infrastructure.Storage
 
                 ArgumentException.ThrowIfNullOrEmpty(pathToFile);
 
-                var tempPath = Path.Combine(pathToFile, $"{note.Title}_{Guid.NewGuid():N}");
+                tempPath = Path.Combine(pathToFile, $"{Guid.NewGuid():N}");
 
                 token.ThrowIfCancellationRequested();
 
                 await File.WriteAllTextAsync(tempPath, note.Content, Encoding.UTF8, token);
 
-                File.Move(pathToFile, note.Path, true);
+                token.ThrowIfCancellationRequested();
 
-                return true;
-            }
-            catch (OperationCanceledException)
-            {
-
+                File.Move(tempPath, note.Path, true);
             }
             catch (PathTooLongException)
             {
-                throw new PathTooLongException("Длинный путь к файлу");
+                throw new PathTooLongException("Too long name file");
             }
             catch (IOException)
             {
-                throw new IOException("Ошибка записи файла");
+                throw new IOException("Error while writing file");
             }
-
-            return false;
+            finally
+            {
+                if (!string.IsNullOrEmpty(tempPath))
+                    await DeleteTempFile(tempPath);
+            }
         }
 
         public Task<IReadOnlyList<NoteInfo>> ListAsync(
@@ -185,6 +186,25 @@ namespace MyNote.Infrastructure.Storage
         Task INoteStorage.RenameAsync(string oldName, string newName)
         {
             throw new NotImplementedException();
+        }
+
+        private Task DeleteTempFile(string path)
+        {
+            try
+            {
+                ArgumentException.ThrowIfNullOrEmpty(path);
+
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+
+                return Task.CompletedTask;
+            }
+            catch (IOException)
+            {
+                throw new IOException("Error while deleting temporary file");
+            }
         }
     }
 }

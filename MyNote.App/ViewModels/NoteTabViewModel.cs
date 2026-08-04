@@ -12,8 +12,7 @@ namespace MyNote.App.ViewModels
     {
         public NoteTabViewModel(Note note)
         {
-            if (note == null)
-                throw new ArgumentNullException(nameof(note));
+            ArgumentNullException.ThrowIfNull(note);
 
             Path = note.Path;
             Title = note.Title;
@@ -33,8 +32,9 @@ namespace MyNote.App.ViewModels
         [ObservableProperty]
         public partial string StatusSave { get; set; }
 
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource? _cancellationTokenSource;
         private readonly INoteStorage _storage;
+        private bool IsFirstInitizize { get; set; }
 
 
         async partial void OnContentChanged(string value)
@@ -44,20 +44,32 @@ namespace MyNote.App.ViewModels
 
         private async Task SaveFile()
         {
+            if (!IsFirstInitizize)
+            {
+                IsFirstInitizize = true;
+                return;
+            }
+
             StatusSave = "Изменено";
 
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = new CancellationTokenSource();
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource?.Dispose();
+            }
+
+            var token = new CancellationTokenSource();
+            _cancellationTokenSource = token;
 
             try
             {
+                token.Token.ThrowIfCancellationRequested();
+
+                await Task.Delay(800, token.Token);
+
+                token.Token.ThrowIfCancellationRequested();
+
                 StatusSave = "Сохранение";
-
-                _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-
-                await Task.Delay(1000);
-
-                _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
                 var note = new Note()
                 {
@@ -67,13 +79,12 @@ namespace MyNote.App.ViewModels
                     ModifiedAt = DateTime.Now
                 };
 
-                await _storage.SaveAsync(note, _cancellationTokenSource.Token);
+                await _storage.SaveAsync(note, token.Token);
 
                 StatusSave = "Сохранено";
             }
             catch (OperationCanceledException)
             {
-
             }
             catch (Exception e)
             {

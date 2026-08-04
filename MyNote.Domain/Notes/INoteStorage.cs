@@ -7,6 +7,6 @@ namespace MyNote.Domain.Notes
         Task<Note> CreateAsync(string folderPath, string name, CancellationToken cancellationToken = default);
         Task RenameAsync(string oldName, string newName);
         Task DeleteAsync();
-        Task<bool> SaveAsync(Note note, CancellationToken token = default);
+        Task SaveAsync(Note note, CancellationToken token = default);
     }
 }
