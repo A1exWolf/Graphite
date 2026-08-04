@@ -9,5 +9,6 @@ namespace MyNote.Domain.Notes
         Task CreateAsync();
         Task RenameAsync(string oldName, string newName);
         Task DeleteAsync();
+        Task<bool> SaveAsync(Note note, CancellationToken token = default);
     }
 }

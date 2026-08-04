@@ -18,6 +18,42 @@ namespace MyNote.Infrastructure.Storage
             throw new NotImplementedException();
         }
 
+        public async Task<bool> SaveAsync(Note note, CancellationToken token = default)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(note.Path);
+
+            try
+            {
+                var pathToFile = Path.GetDirectoryName(note.Path);
+
+                ArgumentException.ThrowIfNullOrEmpty(pathToFile);
+
+                var tempPath = Path.Combine(pathToFile, $"{note.Title}_{Guid.NewGuid():N}");
+
+                token.ThrowIfCancellationRequested();
+
+                await File.WriteAllTextAsync(tempPath, note.Content, Encoding.UTF8, token);
+
+                File.Move(pathToFile, note.Path, true);
+
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
+            catch (PathTooLongException)
+            {
+                throw new PathTooLongException("Длинный путь к файлу");
+            }
+            catch (IOException)
+            {
+                throw new IOException("Ошибка записи файла");
+            }
+
+            return false;
+        }
+
         public Task<IReadOnlyList<NoteInfo>> ListAsync(
             string vaultPath,
             CancellationToken cancellationToken = default)
