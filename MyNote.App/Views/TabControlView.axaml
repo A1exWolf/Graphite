@@ -5,17 +5,17 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MyNote.App.Views.TabControlView"
              xmlns:vm="using:MyNote.App.ViewModels"
-             x:DataType="vm:EditorTabsViewModel">
+             x:DataType="vm:MainViewModel">
     <Grid>
-        <StackPanel IsVisible="{Binding !OpenNotes.Count}" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel IsVisible="{Binding !EditorTabsViewModel.OpenNotes.Count}" VerticalAlignment="Center" HorizontalAlignment="Center">
             <TextBlock Text="Выберите или создайте заметку" FontSize="30" Margin="0,0,0,10" />
-            <Button Content="Создать заметку" HorizontalAlignment="Center" />
+            <Button Content="Создать заметку" HorizontalAlignment="Center" Command="{Binding OpenNewNoteCommand}"/>
         </StackPanel>
 
         <TabControl Margin="5,10"
-                    IsVisible="{Binding OpenNotes.Count}"
-                    ItemsSource="{Binding OpenNotes }"
-                    SelectedItem="{Binding SelectedNote}">
+                    IsVisible="{Binding EditorTabsViewModel.OpenNotes.Count}"
+                    ItemsSource="{Binding EditorTabsViewModel.OpenNotes }"
+                    SelectedItem="{Binding EditorTabsViewModel.SelectedNote}">
             <TabControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:NoteTabViewModel">
                     <StackPanel Orientation="Horizontal">
@@ -25,7 +25,7 @@
                             TextTrimming="CharacterEllipsis" />
                         <Button
                             Content="X"
-                            Command="{Binding $parent[UserControl].((vm:EditorTabsViewModel)DataContext)?.CloseTabCommand}"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.EditorTabsViewModel.CloseTabCommand}"
                             CommandParameter="{Binding}" />
                     </StackPanel>
                 </DataTemplate>

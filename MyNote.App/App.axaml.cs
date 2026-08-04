@@ -38,6 +38,8 @@ public partial class App : Application
                 DataContext = mainView,
             };
 
+            mainView.Owner = mainWindow;
+
             mainWindow.Opened += async (_, _) =>
             {
                 await mainView.InitializeAsync();

@@ -8,9 +8,68 @@ namespace MyNote.Infrastructure.Storage
     /// </summary>
     public class FileNoteStorage : INoteStorage
     {
-        Task INoteStorage.CreateAsync()
+        /// <summary>
+        /// Create note
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<Note> CreateAsync(string folderPath, string name,
+            CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            ArgumentException.ThrowIfNullOrWhiteSpace(folderPath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!Directory.Exists(folderPath))
+                throw new DirectoryNotFoundException(
+                    $"Папка не найдена: {folderPath}");
+
+            var title = name.Trim();
+
+            if (!NoteRules.IsValidName(title) ||
+                title.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new ArgumentException(
+                    "Имя заметки содержит недопустимые символы.",
+                    nameof(name));
+            }
+
+            var fileName = $"{title}.md";
+            var filePath = Path.Combine(folderPath, fileName);
+
+            try
+            {
+                await using (var stream = new FileStream(
+                                 filePath,
+                                 new FileStreamOptions
+                                 {
+                                     Mode = FileMode.CreateNew,
+                                     Access = FileAccess.Write,
+                                     Share = FileShare.None,
+                                     Options = FileOptions.Asynchronous
+                                 }))
+                {
+                    
+                }
+            }
+            catch (IOException exception) when (File.Exists(filePath))
+            {
+                throw new IOException(
+                    $"Заметка «{title}» уже существует.",
+                    exception);
+            }
+
+            return new Note
+            {
+                Path = filePath,
+                Title = title,
+                Content = string.Empty,
+                ModifiedAt = File.GetLastWriteTimeUtc(filePath)
+            };
         }
 
         Task INoteStorage.DeleteAsync()
