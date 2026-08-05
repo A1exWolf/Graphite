@@ -8,5 +8,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
+    
+    public bool AllowCloseWindow { get; set; }
 
 }

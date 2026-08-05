@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MyNote.App.Models;
 
 namespace MyNote.App.ViewModels
 {
@@ -61,10 +62,21 @@ namespace MyNote.App.ViewModels
         }
 
         [RelayCommand]
-        public void CloseTab(NoteTabViewModel tab)
+        public async Task CloseTab(NoteTabViewModel tab)
         {
+            if (tab.State is 
+                StateNote.Modified or
+                StateNote.Saving or
+                StateNote.Error)
+            {
+                await tab.SaveFile();
+            }
+            
+            if (tab.State is StateNote.Error)
+                return;
+            
             OpenNotes.Remove(tab);
-
+            
             if (SelectedNote == tab)
             {
                 SelectedNote = OpenNotes.FirstOrDefault();
