@@ -77,6 +77,43 @@ namespace MyNote.Infrastructure.Storage
             throw new NotImplementedException();
         }
 
+        public async Task SaveAsync(Note note, CancellationToken token = default)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(note.Path);
+
+            string tempPath = string.Empty;
+
+            try
+            {
+                var pathToFile = Path.GetDirectoryName(note.Path);
+
+                ArgumentException.ThrowIfNullOrEmpty(pathToFile);
+
+                tempPath = Path.Combine(pathToFile, $"{Guid.NewGuid():N}");
+
+                token.ThrowIfCancellationRequested();
+
+                await File.WriteAllTextAsync(tempPath, note.Content, Encoding.UTF8, token);
+
+                token.ThrowIfCancellationRequested();
+
+                File.Move(tempPath, note.Path, true);
+            }
+            catch (PathTooLongException)
+            {
+                throw new PathTooLongException("Too long name file");
+            }
+            catch (IOException)
+            {
+                throw new IOException("Error while writing file");
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(tempPath))
+                    await DeleteTempFile(tempPath);
+            }
+        }
+
         public Task<IReadOnlyList<NoteInfo>> ListAsync(
             string vaultPath,
             CancellationToken cancellationToken = default)
@@ -149,6 +186,25 @@ namespace MyNote.Infrastructure.Storage
         Task INoteStorage.RenameAsync(string oldName, string newName)
         {
             throw new NotImplementedException();
+        }
+
+        private Task DeleteTempFile(string path)
+        {
+            try
+            {
+                ArgumentException.ThrowIfNullOrEmpty(path);
+
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+
+                return Task.CompletedTask;
+            }
+            catch (IOException)
+            {
+                throw new IOException("Error while deleting temporary file");
+            }
         }
     }
 }

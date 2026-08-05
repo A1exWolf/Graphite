@@ -36,17 +36,20 @@
                     <Grid
                         Margin="12"
                         RowDefinitions="Auto,*"
+                        ColumnDefinitions="*, *"
                         RowSpacing="8">
 
                         <TextBox
-                            Text="{Binding Title, Mode=TwoWay}" />
+                            Grid.Row="0" Grid.Column="0" Text="{Binding Title, Mode=TwoWay}" />
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="1" Text="{Binding StatusSave}" />
 
-                        <TextBox
+                        <TextBox Grid.Column="0" Grid.ColumnSpan="2"
                             Grid.Row="1"
                             AcceptsReturn="True"
                             AcceptsTab="True"
                             Text="{Binding Content, Mode=TwoWay}"
-                            TextWrapping="Wrap" />
+                            TextWrapping="Wrap"/>
 
                     </Grid>
                 </DataTemplate>
