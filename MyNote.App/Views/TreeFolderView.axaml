@@ -18,11 +18,16 @@
                 <TreeDataTemplate x:DataType="vault:NoteNode" ItemsSource="{Binding Children}">
                     <TextBlock Text="{Binding Name}">
                         <TextBlock.ContextMenu>
-                            <ContextMenu IsVisible="{Binding TypeNode}">
+                            <ContextMenu >
                                 <MenuItem 
+                                    IsVisible="{Binding TypeNode}"
                                     Header="Create File"
                                     Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.OpenNewNoteCommand}"
                                     CommandParameter="{Binding Path}"/>
+                                <MenuItem
+                                    Header="Rename"
+                                    Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.RenemeNoteCommand}"
+                                    CommandParameter="{Binding}"/>
                             </ContextMenu>
                         </TextBlock.ContextMenu>
                     </TextBlock>

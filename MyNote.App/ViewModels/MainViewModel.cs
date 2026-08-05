@@ -70,6 +70,15 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    public async Task RenemeNote(NoteNode? node)
+    {
+        if (node == null)
+        {
+            
+        }
+    }
+
     public async Task Refresh(string path, CancellationToken token)
     {
         await LoadVaultAsync(path, token);

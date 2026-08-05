@@ -13,6 +13,7 @@
         Title="Graphite">
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+N" Command="{Binding OpenNewNoteCommand}"/>
+        <KeyBinding Gesture="F2" Command="{Binding RenemeNoteCommand}"/>
 	</Window.KeyBindings>
     <Grid>
         <views:FolderSelectionView IsVisible="{Binding !IsFolderSelected}"/>
