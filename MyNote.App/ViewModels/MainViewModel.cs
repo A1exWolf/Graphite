@@ -46,22 +46,40 @@ public partial class MainViewModel : ViewModelBase
 
     VaultInfo? CurrentVault { get; set; }
     private Config? _config { get; set; }
+    
+    [ObservableProperty]
+    public partial bool IsNewNoteOpen { get; set; }
+
+    [ObservableProperty]
+    public partial NewNoteViewModel? NewNoteViewModel { get; set; }
 
     [RelayCommand]
-    public async Task OpenNewNote(string path = "")
+    public void OpenNewNote(string path = "")
     {
-        var listFolder = new List<string>{ SelectedFolderPath };
-        listFolder.AddRange(Directory.GetDirectories(SelectedFolderPath, "*", 
-            new EnumerationOptions() { RecurseSubdirectories = true }));
-        var newNoteViewModel = new NewNoteViewModel(new FileNoteStorage(), 
-            listFolder, 
+        var folders = new List<string> { SelectedFolderPath };
+
+        folders.AddRange(Directory.GetDirectories(
+            SelectedFolderPath,
+            "*",
+            new EnumerationOptions { RecurseSubdirectories = true }));
+
+        NewNoteViewModel = new NewNoteViewModel(
+            new FileNoteStorage(),
+            folders,
             string.IsNullOrEmpty(path) ? SelectedFolderPath : path);
-        var newNoteView = new NewNoteView
-        {
-            DataContext = newNoteViewModel
-        };
-        newNoteViewModel.CloseRequested += newNoteView.Close;
-        var note = await newNoteView.ShowDialog<Note?>(Owner);
+
+        NewNoteViewModel.CloseRequested += OnNewNoteClosed;
+        IsNewNoteOpen = true;
+    }
+    
+    private async void OnNewNoteClosed(Note? note)
+    {
+        IsNewNoteOpen = false;
+
+        if (NewNoteViewModel != null)
+            NewNoteViewModel.CloseRequested -= OnNewNoteClosed;
+
+        NewNoteViewModel = null;
 
         if (note != null)
         {
