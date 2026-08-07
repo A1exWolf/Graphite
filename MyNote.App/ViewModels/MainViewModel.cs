@@ -1,14 +1,13 @@
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MyNote.App.Views;
 using MyNote.Domain.Config;
 using MyNote.Domain.Notes;
 using MyNote.Domain.Vaults;
-using MyNote.Infrastructure.Storage;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,17 +18,20 @@ public partial class MainViewModel : ViewModelBase
     private readonly IVaultManager _vaultManager;
     private readonly IConfigStorage _configStorage;
     private readonly IVaultTreeReader _vaultTreeReader;
+    private readonly INoteStorage _noteStorage;
     
     public MainViewModel( 
         IVaultManager vaultManager, 
         IConfigStorage configStorage, 
         IVaultTreeReader vaultTreeReader,
-        EditorTabsViewModel editorTabsViewModel)
+        INoteStorage noteStorage)
     {
         _vaultManager = vaultManager ?? throw new ArgumentNullException(nameof(vaultManager));
         _configStorage = configStorage ?? throw new ArgumentNullException(nameof(configStorage));
         _vaultTreeReader = vaultTreeReader ?? throw new ArgumentNullException(nameof(vaultTreeReader));
-        EditorTabsViewModel = editorTabsViewModel ?? throw new ArgumentNullException(nameof(editorTabsViewModel));
+        _noteStorage = noteStorage ?? throw new ArgumentNullException(nameof(noteStorage));
+        
+        EditorTabsViewModel = new EditorTabsViewModel(_noteStorage);
     }
 
     public EditorTabsViewModel EditorTabsViewModel { get; }
@@ -46,7 +48,9 @@ public partial class MainViewModel : ViewModelBase
 
     VaultInfo? CurrentVault { get; set; }
     private Config? _config { get; set; }
-    
+
+    #region Create Note
+
     [ObservableProperty]
     public partial bool IsNewNoteOpen { get; set; }
 
@@ -56,22 +60,20 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     public void OpenNewNote(string path = "")
     {
-        var folders = new List<string> { SelectedFolderPath };
-
-        folders.AddRange(Directory.GetDirectories(
-            SelectedFolderPath,
-            "*",
-            new EnumerationOptions { RecurseSubdirectories = true }));
+        if (IsRenameNoteOpen || IsNewNoteOpen)
+            return;
+        
+        var folders = GetFolders();
 
         NewNoteViewModel = new NewNoteViewModel(
-            new FileNoteStorage(),
+            _noteStorage,
             folders,
             string.IsNullOrEmpty(path) ? SelectedFolderPath : path);
 
         NewNoteViewModel.CloseRequested += OnNewNoteClosed;
         IsNewNoteOpen = true;
     }
-    
+
     private async void OnNewNoteClosed(Note? note)
     {
         IsNewNoteOpen = false;
@@ -88,16 +90,54 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    #endregion
+
+    #region Rename Note
+
+    [ObservableProperty]
+    public partial bool IsRenameNoteOpen { get; set; }
+    
+    [ObservableProperty]
+    public partial RenameNoteViewModel? RenameNoteViewModel  { get; set; }
+    
     [RelayCommand]
     public async Task RenemeNote(NoteNode? node)
     {
+        if (IsRenameNoteOpen || IsNewNoteOpen)
+            return;
+        
         if (node == null)
         {
-            
+            return;
+        }
+
+        RenameNoteViewModel = new RenameNoteViewModel(
+            node.Name,
+            node.Path,
+            _noteStorage);
+        
+        RenameNoteViewModel.CloseRequested += RenameNoteViewModelOnCloseRequested;
+        IsRenameNoteOpen = true;
+    }
+
+    private async void RenameNoteViewModelOnCloseRequested(string? oldPath, string? newPath)
+    {
+        IsRenameNoteOpen = false;
+        if (RenameNoteViewModel != null)
+            RenameNoteViewModel.CloseRequested -= RenameNoteViewModelOnCloseRequested;
+        
+        RenameNoteViewModel = null;
+
+        if (newPath != null)
+        {
+            await Refresh(SelectedFolderPath);
+            // await EditorTabsViewModel.OpenNote();
         }
     }
 
-    public async Task Refresh(string path, CancellationToken token)
+    #endregion
+
+    public async Task Refresh(string path, CancellationToken token = default)
     {
         await LoadVaultAsync(path, token);
     }
@@ -164,5 +204,21 @@ public partial class MainViewModel : ViewModelBase
             IsFolderSelected = false;
             ErrorMessage = e.Message;
         }
+    }
+    
+    /// <summary>
+    /// Get all allow folders
+    /// </summary>
+    /// <returns></returns>
+    private List<string> GetFolders()
+    {
+        var folders = new List<string> { SelectedFolderPath };
+
+        folders.AddRange(Directory.GetDirectories(
+            SelectedFolderPath,
+            "*",
+            new EnumerationOptions { RecurseSubdirectories = true }));
+        
+        return folders;
     }
 }

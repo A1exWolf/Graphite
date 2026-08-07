@@ -16,7 +16,7 @@ public class FileVaultTreeReader : IVaultTreeReader
             {
                 var newItem = new NoteNode
                 {
-                    Name = string.Concat("📁", Path.GetFileName(i)),
+                    Name = Path.GetFileName(i),
                     Path = i,
                     TypeNode = TypeNode.Folder
                 };
@@ -33,7 +33,7 @@ public class FileVaultTreeReader : IVaultTreeReader
 
                 var newItem = new NoteNode
                 {
-                    Name = string.Concat("📄", Path.GetFileNameWithoutExtension(i)),
+                    Name = Path.GetFileNameWithoutExtension(i),
                     Path = i,
                     TypeNode = TypeNode.Note
                 };

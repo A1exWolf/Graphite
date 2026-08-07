@@ -16,7 +16,7 @@
         <KeyBinding Gesture="F2" Command="{Binding RenemeNoteCommand}"/>
 	</Window.KeyBindings>
     <Grid>
-        <Grid IsEnabled="{Binding !IsNewNoteOpen}">
+        <Grid >
             <views:FolderSelectionView
                 IsVisible="{Binding !IsFolderSelected}"/>
 
@@ -40,6 +40,25 @@
                 </Border.RenderTransform>
 
                 <views:NewNoteView DataContext="{Binding NewNoteViewModel}"/>
+            </Border>
+        </Grid>
+        
+        <Grid IsVisible="{Binding IsRenameNoteOpen}">
+            <Border Background="#66000000"/>
+            
+            <Border Width="420"
+                    Padding="24"
+                    CornerRadius="12"
+                    Background="White"
+                    BoxShadow="0 8 30 0 #60000000"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                
+                <Border.RenderTransform>
+                    <TranslateTransform Y="-100"/>
+                </Border.RenderTransform>
+
+                <views:RenameNoteView DataContext="{Binding RenameNoteViewModel}"/>
             </Border>
         </Grid>
     </Grid>

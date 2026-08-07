@@ -16,7 +16,8 @@
         <TreeView Grid.Row="1" DoubleTapped="InputElement_OnDoubleTapped" ItemsSource="{Binding Tree}">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate x:DataType="vault:NoteNode" ItemsSource="{Binding Children}">
-                    <TextBlock Text="{Binding Name}">
+                    <TextBlock Text="{Binding Name}" 
+                               HorizontalAlignment="Stretch">
                         <TextBlock.ContextMenu>
                             <ContextMenu >
                                 <MenuItem 
@@ -25,6 +26,7 @@
                                     Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.OpenNewNoteCommand}"
                                     CommandParameter="{Binding Path}"/>
                                 <MenuItem
+                                    IsVisible="{Binding !TypeNode}"
                                     Header="Rename"
                                     Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.RenemeNoteCommand}"
                                     CommandParameter="{Binding}"/>
