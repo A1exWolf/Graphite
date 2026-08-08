@@ -72,9 +72,27 @@ namespace MyNote.Infrastructure.Storage
             };
         }
 
-        Task INoteStorage.DeleteAsync()
+        public Task DeleteAsync(string pathVault, string path, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            ArgumentException.ThrowIfNullOrEmpty(path);
+
+            if (!File.Exists(path))
+                throw new FileNotFoundException("File not exists");
+
+            try
+            {
+                var pathToFolderTrash = Path.Combine(pathVault, ".trash");
+                
+                var directoryInfo = Directory.CreateDirectory(pathToFolderTrash);
+                
+                File.Move(path, Path.Combine(pathToFolderTrash, $"{Guid.NewGuid():D}.md"));
+
+                return Task.CompletedTask;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         public async Task SaveAsync(Note note, CancellationToken token = default)
@@ -142,12 +160,22 @@ namespace MyNote.Infrastructure.Storage
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
+                        var relativePath = Path.GetRelativePath(
+                            vaultPath,
+                            notePath);
+
+                        if (string.Equals(relativePath, ".trash", StringComparison.OrdinalIgnoreCase) ||
+                            relativePath.StartsWith(
+                                $".trash{Path.DirectorySeparatorChar}",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
                         noteList.Add(
                             new NoteInfo(
                                 Path: notePath,
-                                RelativePath: Path.GetRelativePath(
-                                    vaultPath,
-                                    notePath),
+                                RelativePath: relativePath,
                                 Title: Path.GetFileNameWithoutExtension(
                                     notePath),
                                 ModifiedAt: File.GetLastWriteTimeUtc(

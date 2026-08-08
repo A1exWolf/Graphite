@@ -60,5 +60,47 @@ namespace MyNote.Tests.Storage
 
             Assert.Null(result);
         }
+
+        [Fact]
+        public async Task DeleteAsync_WhenNoteExists_MovesFileToTrash()
+        {
+            var vaultPath = Path.Combine(
+                Path.GetTempPath(),
+                $"GraphiteTests-{Guid.NewGuid():N}");
+
+            Directory.CreateDirectory(vaultPath);
+
+            var notePath = Path.Combine(vaultPath, "Заметка для удаления.md");
+            const string expectedContent = "Содержимое удаляемой заметки.";
+
+            try
+            {
+                await File.WriteAllTextAsync(notePath, expectedContent);
+
+                var storage = new FileNoteStorage();
+
+                await storage.DeleteAsync(
+                    vaultPath,
+                    notePath,
+                    CancellationToken.None);
+
+                var trashPath = Path.Combine(vaultPath, ".trash");
+
+                Assert.True(Directory.Exists(trashPath));
+
+                var trashedNotePath = Assert.Single(
+                    Directory.GetFiles(trashPath, "*.md"));
+
+                Assert.False(File.Exists(notePath));
+                Assert.Equal(
+                    expectedContent,
+                    await File.ReadAllTextAsync(trashedNotePath));
+            }
+            finally
+            {
+                if (Directory.Exists(vaultPath))
+                    Directory.Delete(vaultPath, recursive: true);
+            }
+        }
     }
 }

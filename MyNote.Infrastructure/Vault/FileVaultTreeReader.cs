@@ -14,6 +14,8 @@ public class FileVaultTreeReader : IVaultTreeReader
 
             if (attr.HasFlag(FileAttributes.Directory))
             {
+                if (string.Equals(Path.GetFileName(i), ".trash")) continue;
+
                 var newItem = new NoteNode
                 {
                     Name = Path.GetFileName(i),

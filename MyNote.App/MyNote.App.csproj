@@ -26,4 +26,10 @@
     <ProjectReference Include="..\MyNote.Domain\MyNote.Domain.csproj" />
     <ProjectReference Include="..\MyNote.Infrastructure\MyNote.Infrastructure.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\DeleteNoteView.axaml.cs">
+      <DependentUpon>DeleteNoteView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

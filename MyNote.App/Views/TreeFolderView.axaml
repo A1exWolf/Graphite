@@ -27,8 +27,13 @@
                                     CommandParameter="{Binding Path}"/>
                                 <MenuItem
                                     IsVisible="{Binding !TypeNode}"
-                                    Header="Rename"
+                                    Header="Rename file"
                                     Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.RenemeNoteCommand}"
+                                    CommandParameter="{Binding}"/>
+                                <MenuItem
+                                    IsVisible="{Binding !TypeNode}"
+                                    Header="Delete file"
+                                    Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.DeleteNoteCommand}"
                                     CommandParameter="{Binding}"/>
                             </ContextMenu>
                         </TextBlock.ContextMenu>

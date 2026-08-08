@@ -19,10 +19,10 @@ public partial class MainViewModel : ViewModelBase
     private readonly IConfigStorage _configStorage;
     private readonly IVaultTreeReader _vaultTreeReader;
     private readonly INoteStorage _noteStorage;
-    
-    public MainViewModel( 
-        IVaultManager vaultManager, 
-        IConfigStorage configStorage, 
+
+    public MainViewModel(
+        IVaultManager vaultManager,
+        IConfigStorage configStorage,
         IVaultTreeReader vaultTreeReader,
         INoteStorage noteStorage)
     {
@@ -30,7 +30,7 @@ public partial class MainViewModel : ViewModelBase
         _configStorage = configStorage ?? throw new ArgumentNullException(nameof(configStorage));
         _vaultTreeReader = vaultTreeReader ?? throw new ArgumentNullException(nameof(vaultTreeReader));
         _noteStorage = noteStorage ?? throw new ArgumentNullException(nameof(noteStorage));
-        
+
         EditorTabsViewModel = new EditorTabsViewModel(_noteStorage);
     }
 
@@ -51,18 +51,15 @@ public partial class MainViewModel : ViewModelBase
 
     #region Create Note
 
-    [ObservableProperty]
-    public partial bool IsNewNoteOpen { get; set; }
+    [ObservableProperty] public partial bool IsNewNoteOpen { get; set; }
 
-    [ObservableProperty]
-    public partial NewNoteViewModel? NewNoteViewModel { get; set; }
+    [ObservableProperty] public partial NewNoteViewModel? NewNoteViewModel { get; set; }
 
     [RelayCommand]
     public void OpenNewNote(string path = "")
     {
-        if (IsRenameNoteOpen || IsNewNoteOpen)
-            return;
-        
+        if (GetStatus()) return;
+
         var folders = GetFolders();
 
         NewNoteViewModel = new NewNoteViewModel(
@@ -94,18 +91,15 @@ public partial class MainViewModel : ViewModelBase
 
     #region Rename Note
 
-    [ObservableProperty]
-    public partial bool IsRenameNoteOpen { get; set; }
-    
-    [ObservableProperty]
-    public partial RenameNoteViewModel? RenameNoteViewModel  { get; set; }
-    
+    [ObservableProperty] public partial bool IsRenameNoteOpen { get; set; }
+
+    [ObservableProperty] public partial RenameNoteViewModel? RenameNoteViewModel { get; set; }
+
     [RelayCommand]
     public async Task RenemeNote(NoteNode? node)
     {
-        if (IsRenameNoteOpen || IsNewNoteOpen)
-            return;
-        
+        if (GetStatus()) return;
+
         if (node == null)
         {
             return;
@@ -115,7 +109,7 @@ public partial class MainViewModel : ViewModelBase
             node.Name,
             node.Path,
             _noteStorage);
-        
+
         RenameNoteViewModel.CloseRequested += RenameNoteViewModelOnCloseRequested;
         IsRenameNoteOpen = true;
     }
@@ -125,13 +119,66 @@ public partial class MainViewModel : ViewModelBase
         IsRenameNoteOpen = false;
         if (RenameNoteViewModel != null)
             RenameNoteViewModel.CloseRequested -= RenameNoteViewModelOnCloseRequested;
-        
+
         RenameNoteViewModel = null;
 
         if (newPath != null)
         {
             await Refresh(SelectedFolderPath);
             // await EditorTabsViewModel.OpenNote();
+        }
+    }
+
+    #endregion
+
+    #region Delete Note
+
+    [ObservableProperty] public partial bool IsDeleteNoteOpen { get; set; }
+    [ObservableProperty] public partial DeleteNoteViewModel? DeleteNoteViewModel { get; set; }
+
+    [RelayCommand]
+    public async Task DeleteNote(NoteNode? node)
+    {
+        if (GetStatus()) return;
+        IsDeleteNoteOpen = true;
+
+        if (node == null)
+        {
+            var activeTab = EditorTabsViewModel.SelectedNote; 
+            
+            if (activeTab != null)
+            {
+                node = new NoteNode()
+                {
+                    Path = activeTab.Path,
+                    TypeNode = TypeNode.Note,
+                    Name = activeTab.Title
+                };
+            }
+            else
+            {
+                IsDeleteNoteOpen = false;
+                return;
+            }
+        }
+
+        DeleteNoteViewModel =
+            new DeleteNoteViewModel(_noteStorage, SelectedFolderPath, node.Path, EditorTabsViewModel);
+        DeleteNoteViewModel.CloseRequested += DeleteNoteOnCloseRequested;
+    }
+
+    private async void DeleteNoteOnCloseRequested(bool statusDeleted)
+    {
+        IsDeleteNoteOpen = false;
+
+        if (DeleteNoteViewModel != null)
+            DeleteNoteViewModel.CloseRequested -= DeleteNoteOnCloseRequested;
+
+        DeleteNoteViewModel = null;
+        
+        if (statusDeleted)
+        {
+            await Refresh(SelectedFolderPath, default);
         }
     }
 
@@ -153,10 +200,7 @@ public partial class MainViewModel : ViewModelBase
 
             var newTree = new List<NoteNode>();
 
-            await Task.Run(() =>
-            {
-                _vaultTreeReader.ReadDirectory(path, newTree);
-            }, token);
+            await Task.Run(() => { _vaultTreeReader.ReadDirectory(path, newTree); }, token);
 
             Tree = newTree;
 
@@ -197,13 +241,19 @@ public partial class MainViewModel : ViewModelBase
         }
         catch (OperationCanceledException)
         {
-
         }
         catch (Exception e)
         {
             IsFolderSelected = false;
             ErrorMessage = e.Message;
         }
+    }
+
+    private bool GetStatus()
+    {
+        if (IsRenameNoteOpen || IsNewNoteOpen || IsDeleteNoteOpen)
+            return true;
+        return false;
     }
     
     /// <summary>
@@ -214,11 +264,20 @@ public partial class MainViewModel : ViewModelBase
     {
         var folders = new List<string> { SelectedFolderPath };
 
+        var trashRelativePath = $".trash{Path.DirectorySeparatorChar}";
+
         folders.AddRange(Directory.GetDirectories(
-            SelectedFolderPath,
-            "*",
-            new EnumerationOptions { RecurseSubdirectories = true }));
-        
+                SelectedFolderPath,
+                "*",
+                new EnumerationOptions { RecurseSubdirectories = true })
+            .Where(path =>
+            {
+                var relativePath = Path.GetRelativePath(SelectedFolderPath, path);
+
+                return !string.Equals(relativePath, ".trash", StringComparison.OrdinalIgnoreCase) &&
+                       !relativePath.StartsWith(trashRelativePath, StringComparison.OrdinalIgnoreCase);
+            }));
+
         return folders;
     }
 }
