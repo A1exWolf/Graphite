@@ -1,41 +1,35 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="170"
-        x:Class="MyNote.App.Views.NewNoteView"
-        Title="Создание заметки"
-        Height="170"
-        Width="350"
-        CanResize="False"
-        CanMinimize="False"
-        CanMaximize="False"
-        xmlns:vm="using:MyNote.App.ViewModels"
-        x:DataType="vm:NewNoteViewModel">
-  <Grid Margin="20">
-      <Grid.RowDefinitions>
-		  <RowDefinition Height="Auto"/>
-		  <RowDefinition Height="Auto"/>
-		  <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MyNote.App.ViewModels"
+             x:Class="MyNote.App.Views.NewNoteView"
+             x:DataType="vm:NewNoteViewModel">
 
-      <TextBox Grid.Row="0" 
-               Grid.Column="0" 
-               PlaceholderText="Название заметки" 
-               Text="{Binding Name}"/>
-      <ComboBox Grid.Row="1" 
-                Grid.Column="0" 
-                Margin="0, 20" 
-                Width="310" 
-                PlaceholderText="Выберите папку для сохранения" 
-                SelectedItem="{Binding SelectedFolderPath}"
-                ItemsSource="{Binding Folders}"/>
-      <StackPanel Grid.Row="2" 
-                  Orientation="Horizontal" 
-                  Width="310">
-        <Button Content="Создать" Command="{Binding CreateCommand}"/>
-        <Button Content="Отмена" Command="{Binding CancelCommand}"/>
-        <TextBlock Text="{Binding ErrorMessage}" Foreground="IndianRed"/>
-      </StackPanel>
-  </Grid>
-</Window>
+    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="16">
+        <TextBox
+            PlaceholderText="Название заметки"
+            Text="{Binding Name}"/>
+
+        <ComboBox
+            Grid.Row="1"
+            PlaceholderText="Выберите папку"
+            SelectedItem="{Binding SelectedFolderPath}"
+            ItemsSource="{Binding Folders}"/>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <TextBlock
+                Text="{Binding ErrorMessage}"
+                Foreground="IndianRed"
+                VerticalAlignment="Center"/>
+
+            <Button
+                Grid.Column="1"
+                Content="Отмена"
+                Command="{Binding CancelCommand}"/>
+
+            <Button
+                Grid.Column="2"
+                Content="Создать"
+                Command="{Binding CreateCommand}"/>
+        </Grid>
+    </Grid>
+</UserControl>

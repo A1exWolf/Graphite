@@ -13,11 +13,75 @@
         Title="Graphite">
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+N" Command="{Binding OpenNewNoteCommand}"/>
+        <KeyBinding Gesture="F2" Command="{Binding RenemeNoteCommand}"/>
+        <KeyBinding Gesture="Delete" Command="{Binding DeleteNoteCommand}"/>
 	</Window.KeyBindings>
     <Grid>
-        <views:FolderSelectionView IsVisible="{Binding !IsFolderSelected}"/>
+        <Grid >
+            <views:FolderSelectionView
+                IsVisible="{Binding !IsFolderSelected}"/>
 
-        <views:NotesView IsVisible="{Binding IsFolderSelected}"/>
+            <views:NotesView
+                IsVisible="{Binding IsFolderSelected}"/>
+        </Grid>
+        
+        <Grid IsVisible="{Binding IsNewNoteOpen}">
+            <Border Background="#66000000"/>
+            
+            <Border Width="420"
+                    Padding="24"
+                    CornerRadius="12"
+                    Background="White"
+                    BoxShadow="0 8 30 0 #60000000"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                
+                <Border.RenderTransform>
+                    <TranslateTransform Y="-100"/>
+                </Border.RenderTransform>
+
+                <views:NewNoteView DataContext="{Binding NewNoteViewModel}"/>
+            </Border>
+        </Grid>
+        
+        <Grid IsVisible="{Binding IsRenameNoteOpen}">
+            <Border Background="#66000000"/>
+            
+            <Border Width="420"
+                    Padding="24"
+                    CornerRadius="12"
+                    Background="White"
+                    BoxShadow="0 8 30 0 #60000000"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                
+                <Border.RenderTransform>
+                    <TranslateTransform Y="-100"/>
+                </Border.RenderTransform>
+
+                <views:RenameNoteView DataContext="{Binding RenameNoteViewModel}"/>
+            </Border>
+        </Grid>
+
+        <Grid IsVisible="{Binding IsDeleteNoteOpen}">
+            <Border Background="#66000000"/>
+            
+            <Border Width="420"
+                    Padding="24"
+                    CornerRadius="12"
+                    Background="White"
+                    BoxShadow="0 8 30 0 #60000000"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                
+                <Border.RenderTransform>
+                    <TranslateTransform Y="-100"/>
+                </Border.RenderTransform>
+
+                <views:DeleteNoteView DataContext="{Binding DeleteNoteViewModel}"/>
+            </Border>
+
+        </Grid>
     </Grid>
 
 </Window>

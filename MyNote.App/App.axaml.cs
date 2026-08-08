@@ -27,13 +27,12 @@ public partial class App : Application
             var noteStorage = new FileNoteStorage();
             var vaultManager = new FileVaultManager();
             var vaultReader = new FileVaultTreeReader();
-            var editorTabsViewModel = new EditorTabsViewModel(noteStorage);
 
             var mainView = new MainViewModel(
                 vaultManager, 
                 configManager, 
                 vaultReader,
-                editorTabsViewModel);
+                noteStorage);
 
             var mainWindow = new MainWindow
             {

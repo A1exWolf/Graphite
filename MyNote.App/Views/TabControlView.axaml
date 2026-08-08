@@ -18,15 +18,21 @@
                     SelectedItem="{Binding EditorTabsViewModel.SelectedNote}">
             <TabControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:NoteTabViewModel">
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" MaxHeight="30" VerticalAlignment="Center">
                         <TextBlock
                             MaxWidth="180"
                             Text="{Binding Title}"
                             TextTrimming="CharacterEllipsis" />
                         <Button
-                            Content="X"
+                            Content="x"
+                            FontSize="10"
                             Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext)?.EditorTabsViewModel.CloseTabCommand}"
-                            CommandParameter="{Binding}" />
+                            CommandParameter="{Binding}"
+                            MaxHeight="25"
+                            Margin="5,0,0,0"
+                            Background="Red"
+                            Foreground="White"
+                            CornerRadius="15"/>
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
@@ -34,7 +40,6 @@
             <TabControl.ContentTemplate>
                 <DataTemplate x:DataType="vm:NoteTabViewModel">
                     <Grid
-                        Margin="12"
                         RowDefinitions="Auto,*"
                         ColumnDefinitions="*, *"
                         RowSpacing="8">

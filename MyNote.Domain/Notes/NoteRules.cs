@@ -18,10 +18,22 @@ namespace MyNote.Domain.Notes
             return true;
         }
 
-        public static void EnsureValidName(string name)
+        /// <summary>
+        /// Ensure valid name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public static void EnsureValidNameNote(string name)
         {
-            if (name.IndexOf('.') > -1)
-                throw new ArgumentException("Имя не может содержать точку");
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+            var invalidPathChars = Path.GetInvalidFileNameChars();
+
+            foreach (var someChar in invalidPathChars)
+            {
+                if (name.IndexOf(someChar) > -1)
+                    throw new ArgumentException($"The file name cannot contain the following characters {string.Join(' ', invalidPathChars)}");
+            }
         }
     }
 }

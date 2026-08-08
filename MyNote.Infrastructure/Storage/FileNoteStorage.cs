@@ -72,9 +72,27 @@ namespace MyNote.Infrastructure.Storage
             };
         }
 
-        Task INoteStorage.DeleteAsync()
+        public Task DeleteAsync(string pathVault, string path, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            ArgumentException.ThrowIfNullOrEmpty(path);
+
+            if (!File.Exists(path))
+                throw new FileNotFoundException("File not exists");
+
+            try
+            {
+                var pathToFolderTrash = Path.Combine(pathVault, ".trash");
+                
+                var directoryInfo = Directory.CreateDirectory(pathToFolderTrash);
+                
+                File.Move(path, Path.Combine(pathToFolderTrash, $"{Guid.NewGuid():D}.md"));
+
+                return Task.CompletedTask;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         public async Task SaveAsync(Note note, CancellationToken token = default)
@@ -142,12 +160,22 @@ namespace MyNote.Infrastructure.Storage
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
+                        var relativePath = Path.GetRelativePath(
+                            vaultPath,
+                            notePath);
+
+                        if (string.Equals(relativePath, ".trash", StringComparison.OrdinalIgnoreCase) ||
+                            relativePath.StartsWith(
+                                $".trash{Path.DirectorySeparatorChar}",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
                         noteList.Add(
                             new NoteInfo(
                                 Path: notePath,
-                                RelativePath: Path.GetRelativePath(
-                                    vaultPath,
-                                    notePath),
+                                RelativePath: relativePath,
                                 Title: Path.GetFileNameWithoutExtension(
                                     notePath),
                                 ModifiedAt: File.GetLastWriteTimeUtc(
@@ -183,9 +211,48 @@ namespace MyNote.Infrastructure.Storage
             };
         }
 
-        Task INoteStorage.RenameAsync(string oldName, string newName)
+        public Task<string> Rename(string oldName, string newName, string path, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            ArgumentException.ThrowIfNullOrEmpty(oldName);
+            ArgumentException.ThrowIfNullOrEmpty(newName);
+            ArgumentException.ThrowIfNullOrEmpty(path);
+            
+            if (string.Equals(oldName, newName))
+                throw new ArgumentException("The lines must be different");
+
+            var oldPath = Path.Combine(path, $"{oldName}.md");
+            var newPath = Path.Combine(path, $"{newName}.md");
+            
+            if (!File.Exists(oldPath))
+                throw new FileNotFoundException("File not exists or not search");
+
+            if (File.Exists(newPath))
+                throw new IOException("File already exists");
+            
+            token.ThrowIfCancellationRequested();
+            
+            try
+            {
+                NoteRules.EnsureValidNameNote(newName);
+                
+                token.ThrowIfCancellationRequested();
+                
+                File.Move(oldPath, newPath);
+
+                return Task.FromResult(newPath);
+            }
+            catch (PathTooLongException exception)
+            {
+                throw new PathTooLongException("File too long contain chars");
+            }
+            catch (NotSupportedException exception)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                throw new IOException("Soma kind of error occurred");
+            }
         }
 
         private Task DeleteTempFile(string path)

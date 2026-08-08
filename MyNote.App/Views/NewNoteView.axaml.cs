@@ -2,11 +2,10 @@ using Avalonia.Controls;
 
 namespace MyNote.App.Views;
 
-public partial class NewNoteView : Window
+public partial class NewNoteView : UserControl
 {
     public NewNoteView()
     {
         InitializeComponent();
     }
-
 }
