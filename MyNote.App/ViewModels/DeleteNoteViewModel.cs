@@ -33,7 +33,8 @@ public partial class DeleteNoteViewModel : ViewModelBase
     /// <summary>
     /// Indicator on deleting
     /// </summary>
-    private bool IsDeleteInProgress { get; set; }
+    [ObservableProperty]
+    public partial bool IsDeleteInProgress { get; set; }
 
     [ObservableProperty] public partial string ErrorMessage { get; set; }
     [ObservableProperty] public partial string Text { get; set; }
