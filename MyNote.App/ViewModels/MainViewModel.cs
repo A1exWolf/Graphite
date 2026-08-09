@@ -99,10 +99,26 @@ public partial class MainViewModel : ViewModelBase
     public async Task RenemeNote(NoteNode? node)
     {
         if (GetStatus()) return;
+        IsRenameNoteOpen = true;
 
         if (node == null)
         {
-            return;
+            var activeTab = EditorTabsViewModel.SelectedNote;
+
+            if (activeTab != null)
+            {
+                node = new NoteNode()
+                {
+                    Path = activeTab.Path,
+                    Name = activeTab.Title,
+                    TypeNode = TypeNode.Note
+                };
+            }
+            else
+            {
+                IsRenameNoteOpen = false;
+                return;
+            }
         }
 
         RenameNoteViewModel = new RenameNoteViewModel(
@@ -111,12 +127,10 @@ public partial class MainViewModel : ViewModelBase
             _noteStorage);
 
         RenameNoteViewModel.CloseRequested += RenameNoteViewModelOnCloseRequested;
-        IsRenameNoteOpen = true;
     }
 
     private async void RenameNoteViewModelOnCloseRequested(string? oldPath, string? newPath)
     {
-        IsRenameNoteOpen = false;
         if (RenameNoteViewModel != null)
             RenameNoteViewModel.CloseRequested -= RenameNoteViewModelOnCloseRequested;
 
@@ -124,9 +138,18 @@ public partial class MainViewModel : ViewModelBase
 
         if (newPath != null)
         {
+            var renamedTab = EditorTabsViewModel.OpenNotes.FirstOrDefault(x => x.Path == oldPath);
+
+            if (renamedTab != null)
+            {
+                await EditorTabsViewModel.CloseTab(renamedTab);
+            }
+
             await Refresh(SelectedFolderPath);
-            // await EditorTabsViewModel.OpenNote();
+            await EditorTabsViewModel.OpenNote(newPath);
         }
+
+        IsRenameNoteOpen = false;
     }
 
     #endregion
@@ -169,8 +192,6 @@ public partial class MainViewModel : ViewModelBase
 
     private async void DeleteNoteOnCloseRequested(bool statusDeleted)
     {
-        IsDeleteNoteOpen = false;
-
         if (DeleteNoteViewModel != null)
             DeleteNoteViewModel.CloseRequested -= DeleteNoteOnCloseRequested;
 
@@ -180,6 +201,8 @@ public partial class MainViewModel : ViewModelBase
         {
             await Refresh(SelectedFolderPath, default);
         }
+
+        IsDeleteNoteOpen = false;
     }
 
     #endregion

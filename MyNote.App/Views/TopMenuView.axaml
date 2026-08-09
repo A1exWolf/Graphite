@@ -6,7 +6,6 @@
              x:Class="MyNote.App.Views.TopMenuView"
              xmlns:vm="using:MyNote.App.ViewModels"
              x:DataType="vm:MainViewModel">
-
     <DockPanel >
         <Menu DockPanel.Dock="Top">
             <MenuItem  Header="_Vault">
@@ -16,7 +15,12 @@
             </MenuItem>
             <MenuItem  Header="_File">
                 <MenuItem Header="_Create" Command="{Binding OpenNewNoteCommand}" InputGesture="Ctrl+N"/>
-                <MenuItem Header="_Delete"/>
+                <MenuItem Header="_Rename" 
+                          Command="{Binding RenemeNoteCommand}" 
+                          InputGesture="F2"/>
+                <MenuItem Header="_Delete" 
+                          Command="{Binding DeleteNoteCommand}" 
+                          InputGesture="Delete"/>
             </MenuItem>
         </Menu>
     </DockPanel>

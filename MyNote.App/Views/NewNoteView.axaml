@@ -12,6 +12,7 @@
         <ComboBox
             Grid.Row="1"
             PlaceholderText="Выберите папку"
+            HorizontalAlignment="Stretch"
             SelectedItem="{Binding SelectedFolderPath}"
             ItemsSource="{Binding Folders}"/>
 
