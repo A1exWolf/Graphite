@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MyNote.App.Models;
 
 namespace MyNote.App.ViewModels;
 
@@ -269,6 +270,34 @@ public partial class MainViewModel : ViewModelBase
         {
             IsFolderSelected = false;
             ErrorMessage = e.Message;
+        }
+    }
+
+    public async Task CloseVault()
+    {
+        try
+        {
+            foreach (var openNote in EditorTabsViewModel.OpenNotes)
+            {
+                await openNote.SaveFile();
+            }
+
+            if (EditorTabsViewModel.OpenNotes.Count(x => x.State == StateNote.Error) != 0)
+            {
+                ErrorMessage = "Во время сохранения открытых табов (произошла ошибка)";
+                return;
+            }
+
+            EditorTabsViewModel.SelectedNote = null;
+            Tree = new List<NoteNode>();
+            await _configStorage.ReplaceFieldAsync(ConfigField.VaultPath, string.Empty, default);
+            CurrentVault = null;
+            SelectedFolderPath = string.Empty;
+            IsFolderSelected = false;
+        }
+        catch (Exception e)
+        {
+            
         }
     }
 
