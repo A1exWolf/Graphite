@@ -13,11 +13,17 @@ public partial class TopMenuView : UserControl
         InitializeComponent();
     }
 
-    private async void MenuItem_OnClick(object? sender, RoutedEventArgs e)
+    private async void Refresh_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel model)
         {
             await model.Refresh(model.SelectedFolderPath, default);
         }
+    }
+
+    private async void CloseVault_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel model)
+            await model.CloseVault();
     }
 }
